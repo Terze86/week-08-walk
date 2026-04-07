@@ -1,21 +1,36 @@
-# Lab Case Tracking — Power Apps + Power Automate Guide
+# Lab Case Tracking App — Complete Build Guide
 
-This guide walks you through building a Power Apps canvas app for lab case review tracking, backed by Microsoft Lists and with Teams notifications via Power Automate.
+This guide walks a complete beginner through every step of building a Power Apps canvas app for lab case review tracking, backed by two Microsoft Lists and with Teams notifications via Power Automate. Read every section before you start — understanding the overall structure will make individual steps much clearer.
+
+**What you will build:**
+- A tablet-format Power Apps canvas app (1366 × 768 px)
+- 7 screens covering both the Reviewer and Reportee workflows
+- Integration with two Microsoft Lists
+- Two Power Automate flows for Teams notifications
 
 **Prerequisites:**
-- Microsoft 365 account with Power Apps, Power Automate, and Microsoft Lists access
-- An existing **Cases** Microsoft List (your current list)
+- Microsoft 365 account with Power Apps, Power Automate, and Microsoft Lists/SharePoint access
+- The existing **Lab Cases** Microsoft List (already set up)
 - Microsoft Teams access
+- A browser at [make.powerapps.com](https://make.powerapps.com) and [make.powerautomate.com](https://make.powerautomate.com)
 
 ---
 
 ## Table of Contents
 
 1. [Part 1: Create the Case Issues Microsoft List](#part-1-create-the-case-issues-microsoft-list)
-2. [Part 2: Update Your Existing Cases List](#part-2-update-your-existing-cases-list)
-3. [Part 3: Build the Power App](#part-3-build-the-power-app)
-4. [Part 4: Power Automate — Teams Notifications](#part-4-power-automate--teams-notifications)
-5. [Part 5: Testing the Full Workflow](#part-5-testing-the-full-workflow)
+2. [Part 2: Create the Power App — Setup and Data](#part-2-create-the-power-app--setup-and-data)
+3. [Part 3: Build Each Screen](#part-3-build-each-screen)
+   - [Step 1 — App OnStart (Variables)](#step-1--app-onstart-variables)
+   - [Step 2 — HomeScreen](#step-2--homescreen)
+   - [Step 3 — ReviewerCaseListScreen](#step-3--reviewercaselistscreen)
+   - [Step 4 — ReviewerCaseDetailScreen](#step-4--reviewercasedetailscreen)
+   - [Step 5 — ReviewerAddIssueScreen](#step-5--revieweraddissuescreen)
+   - [Step 6 — LIMSCopyScreen](#step-6--limscopysceen)
+   - [Step 7 — ReporteeCaseListScreen](#step-7--reporteecaselistscreen)
+   - [Step 8 — ReporteeIssueScreen](#step-8--reporteeissuescreen)
+4. [Part 4: Power Automate Flows](#part-4-power-automate-flows)
+5. [Part 5: Testing Checklist](#part-5-testing-checklist)
 
 ---
 
