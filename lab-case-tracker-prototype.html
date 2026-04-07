@@ -259,6 +259,7 @@
   <div class="spacer"></div>
   <span id="roleDisplay" style="font-size:13px;"></span>
   <button id="btnLogout" style="display:none;" onclick="goHome()">Switch Role</button>
+  <button onclick="resetData()">Reset Data</button>
 </div>
 
 <!-- ════════ Toast ════════ -->
@@ -270,16 +271,16 @@
     <h2>Lab Case Tracker</h2>
     <p>Select your role to get started</p>
     <div class="role-buttons">
-      <div class="role-btn" onclick="selectRole('reviewer')">
+      <button class="role-btn" type="button" onclick="selectRole('reviewer')">
         <span class="role-icon">&#128269;</span>
         <span class="role-label">Reviewer</span>
         <span class="role-desc">Review cases &amp; log issues</span>
-      </div>
-      <div class="role-btn" onclick="selectRole('reportee')">
+      </button>
+      <button class="role-btn" type="button" onclick="selectRole('reportee')">
         <span class="role-icon">&#128221;</span>
         <span class="role-label">Reportee</span>
         <span class="role-desc">Respond to issues &amp; update status</span>
-      </div>
+      </button>
     </div>
   </div>
 </div>
@@ -520,11 +521,11 @@ function selectRole(role) {
   document.getElementById('roleDisplay').textContent = role === 'reviewer' ? 'Role: Reviewer' : 'Role: Reportee';
   document.getElementById('btnLogout').style.display = '';
   if (role === 'reviewer') {
-    renderReviewerList();
     showScreen('screenReviewerList');
+    renderReviewerList();
   } else {
-    renderReporteeList();
     showScreen('screenReporteeList');
+    renderReporteeList();
   }
 }
 
@@ -843,19 +844,16 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// ── Reset data button (for testing) ──
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'R') {
-    if (confirm('Reset all data to defaults?')) {
-      localStorage.removeItem('caseTracker_cases');
-      localStorage.removeItem('caseTracker_issues');
-      data = loadData();
-      nextIssueId = data.issues.length ? Math.max(...data.issues.map(i => i.id)) + 1 : 1;
-      goHome();
-      showToast('Data reset to defaults.');
-    }
+function resetData() {
+  if (confirm('Reset all data to defaults? This will clear any changes you made.')) {
+    localStorage.removeItem('caseTracker_cases');
+    localStorage.removeItem('caseTracker_issues');
+    data = loadData();
+    nextIssueId = data.issues.length ? Math.max(...data.issues.map(i => i.id)) + 1 : 1;
+    goHome();
+    showToast('Data reset to defaults.');
   }
-});
+}
 </script>
 </body>
 </html>
