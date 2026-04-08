@@ -10,7 +10,7 @@ This guide walks a complete beginner through every single step of building a Pow
 
 **Prerequisites:**
 - A Microsoft 365 account with licences for Power Apps, Power Automate, SharePoint/Microsoft Lists, and Microsoft Teams
-- The existing **Lab Cases** SharePoint list (already set up in your site)
+- The existing **Case Assignment Tracker** SharePoint list (already set up in your site)
 - A web browser open at [make.powerapps.com](https://make.powerapps.com)
 - A second tab open at [make.powerautomate.com](https://make.powerautomate.com)
 
@@ -54,7 +54,7 @@ Without the single quotes, Power Apps will show a red error under the formula.
 ## Table of Contents
 
 1. [Part 1 — Create the Case Issues Microsoft List](#part-1--create-the-case-issues-microsoft-list)
-2. [Part 2 — Verify the Lab Cases List](#part-2--verify-the-lab-cases-list)
+2. [Part 2 — Verify the Case Assignment Tracker List](#part-2--verify-the-case-assignment-tracker-list)
 3. [Part 3 — Create the Power App and Connect Data](#part-3--create-the-power-app-and-connect-data)
 4. [Part 4 — App OnStart Variables](#part-4--app-onstart-variables)
 5. [Part 5 — Screen by Screen Build](#part-5--screen-by-screen-build)
@@ -97,10 +97,10 @@ Keep these values in mind throughout the build. They apply to every screen.
 
 | Status | Fill | Color |
 |--------|------|-------|
-| Ready for Review | `RGBA(255, 244, 206, 1)` | `RGBA(131, 92, 0, 1)` |
+| Ready for review | `RGBA(255, 244, 206, 1)` | `RGBA(131, 92, 0, 1)` |
 | In Review | `RGBA(210, 232, 255, 1)` | `RGBA(0, 69, 120, 1)` |
 | Reviewed | `RGBA(255, 224, 214, 1)` | `RGBA(164, 38, 44, 1)` |
-| Case Completed | `RGBA(223, 246, 221, 1)` | `RGBA(16, 124, 16, 1)` |
+| Case completed | `RGBA(223, 246, 221, 1)` | `RGBA(16, 124, 16, 1)` |
 
 **Issue tier badge colours:**
 
@@ -114,11 +114,11 @@ Keep these values in mind throughout the build. They apply to every screen.
 
 ## Part 1 — Create the Case Issues Microsoft List
 
-This new SharePoint list stores every issue that a reviewer logs against a case. Each item in this list belongs to one case in the Lab Cases list, linked by the case's SharePoint ID.
+This new SharePoint list stores every issue that a reviewer logs against a case. Each item in this list belongs to one case in the Case Assignment Tracker list, linked by the case's SharePoint ID.
 
 ### Step-by-step
 
-1. Open a browser and go to your **SharePoint site** (the same site that holds the Lab Cases list). You can also go to [lists.microsoft.com](https://lists.microsoft.com) and click **+ New list**.
+1. Open a browser and go to your **SharePoint site** (the same site that holds the Case Assignment Tracker list). You can also go to [lists.microsoft.com](https://lists.microsoft.com) and click **+ New list**.
 2. Click **+ New list**.
 3. Click **Blank list**.
 4. In the **Name** field type: `Case Issues`
@@ -137,7 +137,7 @@ For each column below, click **+ Add column** at the right end of the column hea
 |---------|-------|
 | Column type | Number |
 | Name | `CaseID` |
-| Description | Stores the SharePoint ID (integer) of the linked Lab Cases item |
+| Description | Stores the SharePoint ID (integer) of the linked Case Assignment Tracker item |
 | Required | No |
 | Default value | (leave blank) |
 
@@ -147,7 +147,7 @@ For each column below, click **+ Add column** at the right end of the column hea
 |---------|-------|
 | Column type | Single line of text |
 | Name | `SubcaseID` |
-| Description | Copy of the Sub-case ID from the Lab Cases list — used for display and filtering |
+| Description | Copy of the Sub-case ID from the Case Assignment Tracker list — used for display and filtering |
 | Required | No |
 
 #### Column 3: IssueDescription
@@ -223,24 +223,23 @@ For each column below, click **+ Add column** at the right end of the column hea
 
 ---
 
-## Part 2 — Verify the Lab Cases List
+## Part 2 — Verify the Case Assignment Tracker List
 
-Check that your existing **Lab Cases** list has all the required columns. If any are missing, add them now using the same method described above.
+Check that your existing **Case Assignment Tracker** list has all the required columns. If any are missing, add them now using the same method described above.
 
 ### Required columns
 
 | Column display name | Internal / formula name | Type | Notes |
 |---------------------|------------------------|------|-------|
-| Title | `Title` | Single line | Default SharePoint column — leave as-is |
-| Sub-case ID | `'Sub-case ID'` | Single line | The unique case reference number |
-| Submission date | `'Submission date'` | Date only | |
-| Due date | `'Due date'` | Date only | |
+| Title | `Title` | Single line | Default SharePoint column — displayed as "Sub-case ID" in views. This is the unique case reference number. |
+| Submission date | `'Submission date'` | Date and time | Date the case was submitted |
 | Case Type | `'Case Type'` | Choice | Your lab's case type values |
-| FLOW case? | `'FLOW case?'` | Yes/No | Indicates if the case is a FLOW case |
-| No. of Exhibits | `'No. of Exhibits'` | Number | |
-| ID SO | `'ID SO'` | Person | The reportee (submitting officer) |
+| FLOW case? | `'FLOW case?'` | Choice | Choice column (Yes/No/NA values). Access with `.Value` in formulas |
+| Articles | `Articles` | Number | Number of articles in the case |
+| Swabs | `Swabs` | Number | Number of swabs in the case |
+| ID SO | `'ID SO'` | Person | The reportee (submitting officer). Internal name: `CCEPGSO` |
 | Reviewer | `Reviewer` | Person | The reviewer assigned |
-| Task status | `'Task status'` | Choice | Must have exactly: Ready for Review, In Review, Reviewed, Case Completed |
+| Task status | `'Task status'` | Choice | Internal name: `Taskstatus`. Must have exactly: Ready for review, In Review, Reviewed, Case completed |
 | Remarks | `Remarks` | Multiple lines | Optional notes |
 
 ### Verify Task status choices
@@ -248,10 +247,10 @@ Check that your existing **Lab Cases** list has all the required columns. If any
 1. Click the **Task status** column header.
 2. Click **Column settings** → **Edit**.
 3. Make sure these four choices exist exactly as written (case-sensitive):
-   - `Ready for Review`
+   - `Ready for review`
    - `In Review`
    - `Reviewed`
-   - `Case Completed`
+   - `Case completed`
 4. Click **Save**.
 
 ---
@@ -291,12 +290,12 @@ Power Apps tablet layout defaults to 1366 × 768 but let us confirm:
 2. Click **+ Add data**.
 3. In the search box type `SharePoint`.
 4. Click **SharePoint** in the results.
-5. A dialog asks for the SharePoint site URL. Paste your site URL (e.g., `https://yourcompany.sharepoint.com/sites/YourSite`) and click the arrow.
-6. You will see a list of lists on that site. Check the box next to **Lab Cases**.
+5. A dialog asks for the SharePoint site URL. Paste your site URL: `https://gccprod.sharepoint.com/sites/HSA-BioD-MST` and click the arrow.
+6. You will see a list of lists on that site. Check the box next to **Case Assignment Tracker**.
 7. Check the box next to **Case Issues**.
 8. Click **Connect**.
 
-Both lists now appear in the Data pane on the left. In all formulas throughout this guide, the lists are referenced as `'Lab Cases'` and `'Case Issues'` (with single quotes because they contain spaces).
+Both lists now appear in the Data pane on the left. In all formulas throughout this guide, the lists are referenced as `'Case Assignment Tracker'` and `'Case Issues'` (with single quotes because they contain spaces).
 
 ---
 
@@ -593,6 +592,16 @@ Insert → Icons → Document (or Message). Rename to `ReporteeIcon`.
 
 This screen shows the reviewer all cases in two separate tables: new cases waiting for review, and cases where the reportee has addressed issues and sent them back.
 
+#### Screen OnVisible
+
+Click the screen name (`ReviewerCaseListScreen`) in the Tree View. In the property selector (top-left dropdown above the formula bar), select **OnVisible**. Paste this formula:
+
+```
+ClearCollect(colCaseIDsWithIssues, Distinct('Case Issues', CaseID))
+```
+
+**What this does:** Every time this screen becomes visible, it builds a local collection called `colCaseIDsWithIssues` containing every unique CaseID from the Case Issues list. This avoids delegation problems caused by nested `Filter()` calls inside gallery Items formulas. The galleries below use `ID in colCaseIDsWithIssues.Value` instead of a nested `Filter` — which is faster and avoids the silent "no results" bug that nested non-delegable queries can cause.
+
 **Overview of controls:**
 
 | Control | Type | Purpose |
@@ -724,20 +733,20 @@ Insert → Input → Text input. Rename to `RCLSearchInput`.
 
 #### Column header labels for Table 1
 
-Add 10 separate labels side by side at Y=192, Height=40. Each has Fill=`RGBA(243, 242, 241, 1)`, FontWeight=`FontWeight.Bold`, FontSize=13, Color=`RGBA(50, 49, 48, 1)`, VerticalAlign=`VerticalAlign.Middle`.
+Add 11 separate labels side by side at Y=192, Height=40. Each has Fill=`RGBA(243, 242, 241, 1)`, FontWeight=`FontWeight.Bold`, FontSize=13, Color=`RGBA(50, 49, 48, 1)`, VerticalAlign=`VerticalAlign.Middle`.
 
 | Control name | X | Width | Text |
 |--------------|---|-------|------|
 | RCL1ColSubcase | 20 | 130 | `"Sub-case ID"` |
 | RCL1ColSubmit | 152 | 110 | `"Submission Date"` |
-| RCL1ColDue | 264 | 100 | `"Due Date"` |
-| RCL1ColType | 366 | 120 | `"Case Type"` |
-| RCL1ColFlow | 488 | 70 | `"FLOW?"` |
-| RCL1ColExhibits | 560 | 80 | `"Exhibits"` |
-| RCL1ColIDSO | 642 | 140 | `"ID SO"` |
-| RCL1ColReviewer | 784 | 140 | `"Reviewer"` |
-| RCL1ColStatus | 926 | 140 | `"Status"` |
-| RCL1ColAction | 1068 | 130 | `"Action"` |
+| RCL1ColType | 264 | 120 | `"Case Type"` |
+| RCL1ColFlow | 386 | 70 | `"FLOW?"` |
+| RCL1ColArticles | 458 | 70 | `"Articles"` |
+| RCL1ColSwabs | 530 | 70 | `"Swabs"` |
+| RCL1ColIDSO | 602 | 140 | `"ID SO"` |
+| RCL1ColReviewer | 744 | 140 | `"Reviewer"` |
+| RCL1ColStatus | 886 | 140 | `"Status"` |
+| RCL1ColAction | 1028 | 130 | `"Action"` |
 
 #### Control: RCLNewCasesGallery (Vertical Gallery)
 
@@ -759,35 +768,35 @@ Insert → Gallery → Vertical. Rename to `RCLNewCasesGallery`.
 ```
 Sort(
     Filter(
-        'Lab Cases',
+        'Case Assignment Tracker',
         Or(
             And(
-                'Task status'.Value = "Ready for Review",
-                CountRows(
-                    Filter('Case Issues', CaseID = ThisRecord.ID)
-                ) = 0
+                'Task status'.Value = "Ready for review",
+                !(ID in colCaseIDsWithIssues.Value)
             ),
             'Task status'.Value = "In Review"
         ),
         Or(
             RCLSearchInput.Text = "",
-            StartsWith('Sub-case ID', RCLSearchInput.Text)
+            StartsWith(Title, RCLSearchInput.Text)
         )
     ),
-    'Due date',
+    'Submission date',
     SortOrder.Ascending
 )
 ```
 
 **What this formula does:**
 
-The `Filter` function returns only rows from `Lab Cases` where either:
-- The status is `"Ready for Review"` AND there are zero issues in `Case Issues` for that case (meaning no reviewer has logged issues yet), OR
+The `Filter` function returns only rows from `Case Assignment Tracker` where either:
+- The status is `"Ready for review"` AND the case ID is NOT found in `colCaseIDsWithIssues` (meaning no reviewer has logged issues yet — this uses the collection built in OnVisible), OR
 - The status is `"In Review"` (already started but not finished).
 
-The `Or(RCLSearchInput.Text = "", StartsWith(...))` part makes the search work: if the search box is empty it shows everything; otherwise it shows only rows where the Sub-case ID starts with the typed text.
+The `Or(RCLSearchInput.Text = "", StartsWith(Title, ...))` part makes the search work: if the search box is empty it shows everything; otherwise it shows only rows where the Title (Sub-case ID) starts with the typed text.
 
-`Sort` then orders everything by Due date ascending (earliest due first).
+`Sort` then orders everything by Submission date ascending (earliest submitted first).
+
+> **Why `Title` instead of `'Sub-case ID'`?** In your list, the Title column is displayed as "Sub-case ID". Power Apps references the internal column name `Title` in formulas. Using `Title` also ensures the `StartsWith` filter is delegable to SharePoint.
 
 **Controls inside the gallery template:**
 
@@ -822,25 +831,11 @@ The template is 52 px tall. Add the following controls inside the gallery (in th
 | Fill | `RGBA(0, 0, 0, 0)` |
 | VerticalAlign | `VerticalAlign.Middle` |
 
-##### RCLNew_DueDate (Label)
-
-| Property | Value |
-|----------|-------|
-| X | 244 |
-| Y | 0 |
-| Width | 100 |
-| Height | 52 |
-| Text | `Text(ThisItem.'Due date', "dd/mm/yyyy")` |
-| FontSize | 12 |
-| Color | `RGBA(96, 94, 92, 1)` |
-| Fill | `RGBA(0, 0, 0, 0)` |
-| VerticalAlign | `VerticalAlign.Middle` |
-
 ##### RCLNew_CaseType (Label)
 
 | Property | Value |
 |----------|-------|
-| X | 346 |
+| X | 244 |
 | Y | 0 |
 | Width | 120 |
 | Height | 52 |
@@ -853,24 +848,37 @@ The template is 52 px tall. Add the following controls inside the gallery (in th
 
 | Property | Value |
 |----------|-------|
-| X | 468 |
+| X | 366 |
 | Y | 0 |
 | Width | 70 |
 | Height | 52 |
-| Text | `If(ThisItem.'FLOW case?', "Yes", "No")` |
+| Text | `ThisItem.'FLOW case?'.Value` |
 | FontSize | 12 |
 | Fill | `RGBA(0, 0, 0, 0)` |
 | VerticalAlign | `VerticalAlign.Middle` |
 
-##### RCLNew_Exhibits (Label)
+##### RCLNew_Articles (Label)
 
 | Property | Value |
 |----------|-------|
-| X | 540 |
+| X | 438 |
 | Y | 0 |
-| Width | 80 |
+| Width | 70 |
 | Height | 52 |
-| Text | `Text(ThisItem.'No. of Exhibits')` |
+| Text | `Text(ThisItem.Articles)` |
+| FontSize | 12 |
+| Fill | `RGBA(0, 0, 0, 0)` |
+| VerticalAlign | `VerticalAlign.Middle` |
+
+##### RCLNew_Swabs (Label)
+
+| Property | Value |
+|----------|-------|
+| X | 510 |
+| Y | 0 |
+| Width | 70 |
+| Height | 52 |
+| Text | `Text(ThisItem.Swabs)` |
 | FontSize | 12 |
 | Fill | `RGBA(0, 0, 0, 0)` |
 | VerticalAlign | `VerticalAlign.Middle` |
@@ -879,7 +887,7 @@ The template is 52 px tall. Add the following controls inside the gallery (in th
 
 | Property | Value |
 |----------|-------|
-| X | 622 |
+| X | 582 |
 | Y | 0 |
 | Width | 140 |
 | Height | 52 |
@@ -892,7 +900,7 @@ The template is 52 px tall. Add the following controls inside the gallery (in th
 
 | Property | Value |
 |----------|-------|
-| X | 764 |
+| X | 724 |
 | Y | 0 |
 | Width | 140 |
 | Height | 52 |
@@ -907,7 +915,7 @@ This label shows a coloured status badge.
 
 | Property | Value |
 |----------|-------|
-| X | 906 |
+| X | 866 |
 | Y | 10 |
 | Width | 130 |
 | Height | 32 |
@@ -920,21 +928,21 @@ This label shows a coloured status badge.
 | RadiusTopRight | 12 |
 | RadiusBottomLeft | 12 |
 | RadiusBottomRight | 12 |
-| Fill | `Switch(ThisItem.'Task status'.Value, "Ready for Review", RGBA(255, 244, 206, 1), "In Review", RGBA(210, 232, 255, 1), "Reviewed", RGBA(255, 224, 214, 1), RGBA(223, 246, 221, 1))` |
-| Color | `Switch(ThisItem.'Task status'.Value, "Ready for Review", RGBA(131, 92, 0, 1), "In Review", RGBA(0, 69, 120, 1), "Reviewed", RGBA(164, 38, 44, 1), RGBA(16, 124, 16, 1))` |
+| Fill | `Switch(ThisItem.'Task status'.Value, "Ready for review", RGBA(255, 244, 206, 1), "In Review", RGBA(210, 232, 255, 1), "Reviewed", RGBA(255, 224, 214, 1), RGBA(223, 246, 221, 1))` |
+| Color | `Switch(ThisItem.'Task status'.Value, "Ready for review", RGBA(131, 92, 0, 1), "In Review", RGBA(0, 69, 120, 1), "Reviewed", RGBA(164, 38, 44, 1), RGBA(16, 124, 16, 1))` |
 
-**What the Switch formula does:** `Switch` is like a series of if/else checks. It looks at the Task status value and picks the matching fill colour. If none match (the last argument), it falls through to the Case Completed green.
+**What the Switch formula does:** `Switch` is like a series of if/else checks. It looks at the Task status value and picks the matching fill colour. If none match (the last argument), it falls through to the Case completed green.
 
 ##### RCLNew_ActionBtn (Button)
 
 | Property | Value |
 |----------|-------|
-| X | 1046 |
+| X | 1008 |
 | Y | 8 |
 | Width | 120 |
 | Height | 36 |
-| Text | `If(ThisItem.'Task status'.Value = "Ready for Review", "Start Review", "")` |
-| Visible | `ThisItem.'Task status'.Value = "Ready for Review"` |
+| Text | `If(ThisItem.'Task status'.Value = "Ready for review", "Start Review", "")` |
+| Visible | `ThisItem.'Task status'.Value = "Ready for review"` |
 | Fill | `RGBA(0, 120, 212, 1)` |
 | Color | `RGBA(255, 255, 255, 1)` |
 | FontSize | 12 |
@@ -942,10 +950,10 @@ This label shows a coloured status badge.
 | RadiusTopRight | 4 |
 | RadiusBottomLeft | 4 |
 | RadiusBottomRight | 4 |
-| OnSelect | `Patch('Lab Cases', ThisItem, {'Task status': {Value: "In Review"}}); Set(gblSelectedCase, ThisItem); Navigate(ReviewerCaseDetailScreen, ScreenTransition.Fade)` |
+| OnSelect | `Patch('Case Assignment Tracker', ThisItem, {'Task status': {Value: "In Review"}}); Set(gblSelectedCase, ThisItem); Navigate(ReviewerCaseDetailScreen, ScreenTransition.Fade)` |
 
 **What the OnSelect formula does:**
-1. `Patch('Lab Cases', ThisItem, ...)` — Updates the Task status to "In Review" in the SharePoint list directly. `ThisItem` refers to the specific row this button is in.
+1. `Patch('Case Assignment Tracker', ThisItem, ...)` — Updates the Task status to "In Review" in the SharePoint list directly. `ThisItem` refers to the specific row this button is in.
 2. `Set(gblSelectedCase, ThisItem)` — Saves the entire case record into the global variable so the detail screen can display it.
 3. `Navigate(ReviewerCaseDetailScreen, ...)` — Moves the user to the detail screen.
 
@@ -990,15 +998,15 @@ Same styling as Table 1 headers but at Y=476. Add these labels:
 |--------------|---|-------|------|
 | RCL2ColSubcase | 20 | 130 | `"Sub-case ID"` |
 | RCL2ColSubmit | 152 | 110 | `"Submission Date"` |
-| RCL2ColDue | 264 | 100 | `"Due Date"` |
-| RCL2ColType | 366 | 120 | `"Case Type"` |
-| RCL2ColFlow | 488 | 70 | `"FLOW?"` |
-| RCL2ColExhibits | 560 | 80 | `"Exhibits"` |
-| RCL2ColIDSO | 642 | 140 | `"ID SO"` |
-| RCL2ColReviewer | 784 | 140 | `"Reviewer"` |
-| RCL2ColStatus | 926 | 100 | `"Status"` |
-| RCL2ColIssues | 1028 | 80 | `"Issues"` |
-| RCL2ColAction | 1110 | 106 | `"Action"` |
+| RCL2ColType | 264 | 120 | `"Case Type"` |
+| RCL2ColFlow | 386 | 70 | `"FLOW?"` |
+| RCL2ColArticles | 458 | 70 | `"Articles"` |
+| RCL2ColSwabs | 530 | 70 | `"Swabs"` |
+| RCL2ColIDSO | 602 | 140 | `"ID SO"` |
+| RCL2ColReviewer | 744 | 140 | `"Reviewer"` |
+| RCL2ColStatus | 886 | 100 | `"Status"` |
+| RCL2ColIssues | 988 | 80 | `"Issues"` |
+| RCL2ColAction | 1070 | 106 | `"Action"` |
 
 #### Control: RCLReturningGallery (Vertical Gallery)
 
@@ -1020,22 +1028,22 @@ Insert → Gallery → Vertical. Rename to `RCLReturningGallery`.
 ```
 Sort(
     Filter(
-        'Lab Cases',
-        'Task status'.Value = "Ready for Review",
-        CountRows(
-            Filter('Case Issues', CaseID = ThisRecord.ID)
-        ) > 0,
+        'Case Assignment Tracker',
+        And(
+            'Task status'.Value = "Ready for review",
+            ID in colCaseIDsWithIssues.Value
+        ),
         Or(
             RCLSearchInput.Text = "",
-            StartsWith('Sub-case ID', RCLSearchInput.Text)
+            StartsWith(Title, RCLSearchInput.Text)
         )
     ),
-    'Due date',
+    'Submission date',
     SortOrder.Ascending
 )
 ```
 
-**What this formula does:** Shows only cases where the status is "Ready for Review" AND there is at least one issue record in Case Issues linked to that case. This means the reportee has addressed the issues and returned the case.
+**What this formula does:** Shows only cases where the status is "Ready for review" AND the case ID IS found in `colCaseIDsWithIssues` (meaning at least one issue record exists in Case Issues for that case). This means the reportee has addressed the issues and returned the case for re-review.
 
 **Controls inside RCLReturningGallery template:**
 
@@ -1043,7 +1051,7 @@ Add the same label controls as in Table 1 (SubcaseID through Reviewer) at the sa
 
 ##### RCLRet_StatusBadge (Label)
 
-Same formula as RCLNew_StatusBadge above, X=906, Y=10, Width=100, Height=32.
+Same formula as RCLNew_StatusBadge above, X=866, Y=10, Width=100, Height=32.
 
 ##### RCLRet_IssuesBadge (Label)
 
@@ -1051,7 +1059,7 @@ Shows a count of issues in an amber badge.
 
 | Property | Value |
 |----------|-------|
-| X | 1028 |
+| X | 988 |
 | Y | 10 |
 | Width | 70 |
 | Height | 32 |
@@ -1071,7 +1079,7 @@ Shows a count of issues in an amber badge.
 
 | Property | Value |
 |----------|-------|
-| X | 1108 |
+| X | 1070 |
 | Y | 8 |
 | Width | 106 |
 | Height | 36 |
@@ -1205,22 +1213,22 @@ For the **Status badge value** add a label with:
 | RadiusTopRight | 12 |
 | RadiusBottomLeft | 12 |
 | RadiusBottomRight | 12 |
-| Fill | `Switch(gblSelectedCase.'Task status'.Value, "Ready for Review", RGBA(255, 244, 206, 1), "In Review", RGBA(210, 232, 255, 1), "Reviewed", RGBA(255, 224, 214, 1), RGBA(223, 246, 221, 1))` |
-| Color | `Switch(gblSelectedCase.'Task status'.Value, "Ready for Review", RGBA(131, 92, 0, 1), "In Review", RGBA(0, 69, 120, 1), "Reviewed", RGBA(164, 38, 44, 1), RGBA(16, 124, 16, 1))` |
+| Fill | `Switch(gblSelectedCase.'Task status'.Value, "Ready for review", RGBA(255, 244, 206, 1), "In Review", RGBA(210, 232, 255, 1), "Reviewed", RGBA(255, 224, 214, 1), RGBA(223, 246, 221, 1))` |
+| Color | `Switch(gblSelectedCase.'Task status'.Value, "Ready for review", RGBA(131, 92, 0, 1), "In Review", RGBA(0, 69, 120, 1), "Reviewed", RGBA(164, 38, 44, 1), RGBA(16, 124, 16, 1))` |
 
 **Row 2 (Y=152 for field names, Y=174 for values):**
 
 | Field | X | Width | Name | Value |
 |-------|---|-------|------|-------|
-| Due Date | 36 | 180 | `"Due Date"` | `Text(gblSelectedCase.'Due date', "dd/mm/yyyy")` |
-| Case Type | 250 | 200 | `"Case Type"` | `gblSelectedCase.'Case Type'.Value` |
-| FLOW Case | 484 | 180 | `"FLOW Case"` | `If(gblSelectedCase.'FLOW case?', "Yes", "No")` |
+| Case Type | 36 | 180 | `"Case Type"` | `gblSelectedCase.'Case Type'.Value` |
+| FLOW Case | 250 | 200 | `"FLOW Case"` | `gblSelectedCase.'FLOW case?'.Value` |
+| Articles | 484 | 180 | `"Articles"` | `Text(gblSelectedCase.Articles)` |
 
 **Row 3 (Y=192 for field names, Y=214 for values):**
 
 | Field | X | Width | Name | Value |
 |-------|---|-------|------|-------|
-| No. of Exhibits | 36 | 180 | `"No. of Exhibits"` | `Text(gblSelectedCase.'No. of Exhibits')` |
+| Swabs | 36 | 180 | `"Swabs"` | `Text(gblSelectedCase.Swabs)` |
 | ID SO | 250 | 200 | `"ID SO"` | `gblSelectedCase.'ID SO'.DisplayName` |
 | Reviewer | 484 | 200 | `"Reviewer"` | `gblSelectedCase.Reviewer.DisplayName` |
 
@@ -1743,12 +1751,12 @@ If(
         NotificationType.Warning
     ),
     Patch(
-        'Lab Cases',
+        'Case Assignment Tracker',
         gblSelectedCase,
         {'Task status': {Value: "Reviewed"}}
     );
-    Set(gblSelectedCase, LookUp('Lab Cases', ID = gblSelectedCase.ID));
-    Refresh('Lab Cases');
+    Set(gblSelectedCase, LookUp('Case Assignment Tracker', ID = gblSelectedCase.ID));
+    Refresh('Case Assignment Tracker');
     Notify(
         gblSelectedCase.'Sub-case ID' & " has been marked as Reviewed. The reportee will be notified.",
         NotificationType.Success
@@ -1771,7 +1779,7 @@ If(
 | Y | 718 |
 | Width | 222 |
 | Height | 40 |
-| Text | `"Case Completed"` |
+| Text | `"Case completed"` |
 | Fill | `RGBA(16, 124, 16, 1)` |
 | Color | `RGBA(255, 255, 255, 1)` |
 | FontSize | 13 |
@@ -1785,13 +1793,13 @@ If(
 
 ```
 Patch(
-    'Lab Cases',
+    'Case Assignment Tracker',
     gblSelectedCase,
-    {'Task status': {Value: "Case Completed"}}
+    {'Task status': {Value: "Case completed"}}
 );
-Refresh('Lab Cases');
+Refresh('Case Assignment Tracker');
 Notify(
-    gblSelectedCase.'Sub-case ID' & " has been marked as Case Completed.",
+    gblSelectedCase.'Sub-case ID' & " has been marked as Case completed.",
     NotificationType.Success
 );
 Navigate(ReviewerCaseListScreen, ScreenTransition.Fade)
@@ -2020,7 +2028,7 @@ This screen shows the reportee (submitting officer) all cases assigned to them t
 | Y | 68 |
 | Width | 700 |
 | Height | 36 |
-| Text | `"My Cases — Reviewed  (" & CountRows(Filter('Lab Cases', 'Task status'.Value = "Reviewed", 'ID SO'.Email = User().Email)) & ")"` |
+| Text | `"My Cases — Reviewed  (" & CountRows(Filter('Case Assignment Tracker', 'Task status'.Value = "Reviewed", 'ID SO'.Email = User().Email)) & ")"` |
 | Color | `RGBA(50, 49, 48, 1)` |
 | FontSize | 22 |
 | FontWeight | `FontWeight.Bold` |
@@ -2075,14 +2083,14 @@ Add these labels at Y=158, Height=40, same styling as the reviewer column header
 |--------------|---|-------|------|
 | RPLColSubcase | 20 | 130 | `"Sub-case ID"` |
 | RPLColSubmit | 152 | 110 | `"Submission Date"` |
-| RPLColDue | 264 | 100 | `"Due Date"` |
-| RPLColType | 366 | 120 | `"Case Type"` |
-| RPLColFlow | 488 | 70 | `"FLOW?"` |
-| RPLColExhibits | 560 | 80 | `"Exhibits"` |
-| RPLColIDSO | 642 | 140 | `"ID SO"` |
-| RPLColReviewer | 784 | 140 | `"Reviewer"` |
-| RPLColStatus | 926 | 130 | `"Status"` |
-| RPLColIssues | 1058 | 120 | `"Issues"` |
+| RPLColType | 264 | 120 | `"Case Type"` |
+| RPLColFlow | 386 | 70 | `"FLOW?"` |
+| RPLColArticles | 458 | 70 | `"Articles"` |
+| RPLColSwabs | 530 | 70 | `"Swabs"` |
+| RPLColIDSO | 602 | 140 | `"ID SO"` |
+| RPLColReviewer | 744 | 140 | `"Reviewer"` |
+| RPLColStatus | 886 | 130 | `"Status"` |
+| RPLColIssues | 1018 | 120 | `"Issues"` |
 
 #### Control: RPLCasesGallery (Vertical Gallery)
 
@@ -2102,7 +2110,7 @@ Add these labels at Y=158, Height=40, same styling as the reviewer column header
 ```
 Sort(
     Filter(
-        'Lab Cases',
+        'Case Assignment Tracker',
         'ID SO'.Email = User().Email,
         If(
             RPLStatusDropdown.Selected.Value = "All My Cases",
@@ -2111,10 +2119,10 @@ Sort(
         ),
         Or(
             RPLSearchInput.Text = "",
-            StartsWith('Sub-case ID', RPLSearchInput.Text)
+            StartsWith(Title, RPLSearchInput.Text)
         )
     ),
-    'Due date',
+    'Submission date',
     SortOrder.Ascending
 )
 ```
@@ -2126,7 +2134,7 @@ Sort(
 
 **Controls inside RPLCasesGallery template:**
 
-Add the same set of labels as in the reviewer gallery (SubcaseID, SubmitDate, DueDate, CaseType, Flow, Exhibits, IDSO, Reviewer, StatusBadge) using the same X positions and formulas.
+Add the same set of labels as in the reviewer gallery (SubcaseID, SubmitDate, CaseType, Flow, Articles, Swabs, IDSO, Reviewer, StatusBadge) using the same X positions and formulas.
 
 Then add the open issue count label:
 
@@ -2134,7 +2142,7 @@ Then add the open issue count label:
 
 | Property | Value |
 |----------|-------|
-| X | 1058 |
+| X | 1018 |
 | Y | 10 |
 | Width | 110 |
 | Height | 32 |
@@ -2209,7 +2217,7 @@ Add the same Case Details card (rectangle + field labels) at Y=68, same structur
 | Width | 1326 |
 | Height | 200 |
 
-Add all the same field label pairs inside it (Sub-case ID, Status badge, Submission Date, Due Date, Case Type, FLOW Case, No. of Exhibits, ID SO, Reviewer) — same X positions, same formulas as described in Screen 3.
+Add all the same field label pairs inside it (Sub-case ID, Status badge, Submission Date, Case Type, FLOW Case, Articles, Swabs, ID SO, Reviewer) — same X positions, same formulas as described in Screen 3.
 
 #### Issues to Address Card
 
@@ -2428,7 +2436,7 @@ Add the submit button below the issues card:
 | Y | 674 |
 | Width | 500 |
 | Height | 48 |
-| Text | `"Submit & Return to Ready for Review"` |
+| Text | `"Submit & Return to Ready for review"` |
 | FontSize | 15 |
 | FontWeight | `FontWeight.Semibold` |
 | RadiusTopLeft | 4 |
@@ -2480,11 +2488,11 @@ If(
 
 ```
 Patch(
-    'Lab Cases',
+    'Case Assignment Tracker',
     gblSelectedCase,
-    {'Task status': {Value: "Ready for Review"}}
+    {'Task status': {Value: "Ready for review"}}
 );
-Refresh('Lab Cases');
+Refresh('Case Assignment Tracker');
 Notify(
     gblSelectedCase.'Sub-case ID' & " has been submitted back for re-review.",
     NotificationType.Success
@@ -2492,7 +2500,7 @@ Notify(
 Navigate(ReporteeCaseListScreen, ScreenTransition.Fade)
 ```
 
-**What this does:** Sets the case status back to "Ready for Review". This will trigger the Power Automate flow (set up in Part 6) to notify the reviewer.
+**What this does:** Sets the case status back to "Ready for review". This will trigger the Power Automate flow (set up in Part 6) to notify the reviewer.
 
 #### Control: RPIHelperText (Label)
 
@@ -2540,8 +2548,8 @@ Click the trigger block and fill in:
 
 | Field | Value |
 |-------|-------|
-| Site Address | Your SharePoint site URL (e.g., `https://yourcompany.sharepoint.com/sites/YourSite`) |
-| List Name | `Lab Cases` |
+| Site Address | `https://gccprod.sharepoint.com/sites/HSA-BioD-MST` |
+| List Name | `Case Assignment Tracker` |
 
 #### Step 2: Add a Condition
 
@@ -2608,10 +2616,10 @@ Leave the **If no** branch empty. Click the X on any auto-added steps to remove 
 5. In the box enter:
 
 ```
-@equals(triggerOutputs()?['body/Task_x0020_status/Value'], 'Reviewed')
+@equals(triggerOutputs()?['body/Taskstatus/Value'], 'Reviewed')
 ```
 
-> **Note:** SharePoint internal column names replace spaces with `_x0020_`. The internal name for "Task status" is typically `Task_x0020_status`. You can verify this by going to your SharePoint list → Settings → clicking the column name → looking at the URL, which will show `Field=Task_x0020_status` or similar.
+> **Note:** The internal name for "Task status" in your list is `Taskstatus` (no space, no encoding). You can verify this by going to your SharePoint list → Settings → clicking the column name → looking at the URL, which will show `Field=Taskstatus`.
 
 6. Click **Done** then **Save** the flow.
 
@@ -2625,22 +2633,22 @@ Click **Save** at the top right. Test by opening the app, marking a case as Revi
 
 **Flow name:** `Notify Reviewer — Ready for Re-review`
 
-**Purpose:** When a reportee submits their responses and the case status returns to "Ready for Review" AND the case already has issues (meaning this is a returning case, not a first-time submission), the reviewer receives a Teams message.
+**Purpose:** When a reportee submits their responses and the case status returns to "Ready for review" AND the case already has issues (meaning this is a returning case, not a first-time submission), the reviewer receives a Teams message.
 
 #### Step 1: Trigger — When an item is modified
 
 | Field | Value |
 |-------|-------|
-| Site Address | Your SharePoint site URL |
-| List Name | `Lab Cases` |
+| Site Address | `https://gccprod.sharepoint.com/sites/HSA-BioD-MST` |
+| List Name | `Case Assignment Tracker` |
 
 #### Step 2: Add a Condition
 
-Check whether the Task status is now "Ready for Review":
+Check whether the Task status is now "Ready for review":
 
 - Left: **Task status Value** (Dynamic content from trigger)
 - Middle: **is equal to**
-- Right: `Ready for Review`
+- Right: `Ready for review`
 
 #### Step 3: If yes — Check whether issues exist (nested condition)
 
@@ -2651,7 +2659,7 @@ Inside the **If yes** branch, add another **Condition** to verify this is a retu
 
 | Field | Value |
 |-------|-------|
-| Site Address | Your SharePoint site URL |
+| Site Address | `https://gccprod.sharepoint.com/sites/HSA-BioD-MST` |
 | List Name | `Case Issues` |
 | Filter Query | `CaseID eq ` then insert **Dynamic content: ID** from the trigger |
 | Top Count | `1` |
@@ -2698,7 +2706,7 @@ The reportee has addressed the issues and returned this case for re-review. Plea
 As with Flow 1, add a trigger condition to prevent unnecessary runs:
 
 ```
-@equals(triggerOutputs()?['body/Task_x0020_status/Value'], 'Ready for Review')
+@equals(triggerOutputs()?['body/Taskstatus/Value'], 'Ready for review')
 ```
 
 #### Step 7: Save and test
@@ -2709,13 +2717,13 @@ Click **Save**. Test by having a reportee submit a case back and checking whethe
 
 ### About Trigger Conditions
 
-**Why use trigger conditions?** Without them, the flow would run every single time any field on any item in the Lab Cases list is changed — even if someone just updated the Remarks field or changed the Reviewer. Trigger conditions are evaluated before the flow actually runs, so they stop unnecessary executions early and help you stay within your Power Automate run limits.
+**Why use trigger conditions?** Without them, the flow would run every single time any field on any item in the Case Assignment Tracker list is changed — even if someone just updated the Remarks field or changed the Reviewer. Trigger conditions are evaluated before the flow actually runs, so they stop unnecessary executions early and help you stay within your Power Automate run limits.
 
-**Finding internal column names:** If your trigger condition formula doesn't work, you may need to find the exact internal name of your "Task status" column. To do this:
+**Finding internal column names:** If your trigger condition formula doesn't work, you may need to verify the exact internal name of your "Task status" column. The internal name for your list is `Taskstatus`. To verify:
 1. Go to your SharePoint list.
 2. Click **Settings** (gear icon) → **List settings**.
 3. Under **Columns**, click **Task status**.
-4. Look at the URL bar — it will contain something like `Field=Task%5Fx0020%5Fstatus`. Decode the `%5F` as underscore and `%20` as space to get the internal name.
+4. Look at the URL bar — it will contain something like `Field=Taskstatus`. That string after `Field=` is the internal name to use in trigger conditions.
 
 ---
 
@@ -2725,7 +2733,7 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 
 ### Pre-test setup
 
-- [ ] At least two test case records exist in the Lab Cases list with status "Ready for Review"
+- [ ] At least two test case records exist in the Case Assignment Tracker list with status "Ready for review"
 - [ ] The Case Issues list exists and is connected in the app
 - [ ] Both Power Automate flows are saved and turned on
 - [ ] You have two Microsoft 365 test accounts available: one as Reviewer, one as Reportee (ID SO)
@@ -2749,10 +2757,10 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 - [ ] The breadcrumb "Reviewer > Case List" appears in the header.
 - [ ] "Switch Role" button is visible top-right.
 - [ ] Clicking Switch Role returns to HomeScreen.
-- [ ] Table 1 ("New Cases — Pending Review") shows test cases with status "Ready for Review" and no issues.
+- [ ] Table 1 ("New Cases — Pending Review") shows test cases with status "Ready for review" and no issues.
 - [ ] Table 2 ("Returning Cases — Reportee Completed Changes") is empty (no cases with issues yet).
 - [ ] The search box filters Table 1 results as you type.
-- [ ] The "Start Review" button appears only on "Ready for Review" rows in Table 1.
+- [ ] The "Start Review" button appears only on "Ready for review" rows in Table 1.
 - [ ] Clicking "Start Review" on a case:
   - [ ] Changes the case status to "In Review" in the SharePoint list (verify directly in SharePoint).
   - [ ] Navigates to ReviewerCaseDetailScreen.
@@ -2764,7 +2772,7 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 
 ### Test Block 3: ReviewerCaseDetailScreen — Case Details
 
-- [ ] All case fields display correctly: Sub-case ID, Status, Submission Date, Due Date, Case Type, FLOW Case, No. of Exhibits, ID SO, Reviewer.
+- [ ] All case fields display correctly: Sub-case ID, Status, Submission Date, Case Type, FLOW Case, Articles, Swabs, ID SO, Reviewer.
 - [ ] The Status badge shows the correct colour for "In Review" (blue).
 - [ ] "← Back to Case List" button returns to ReviewerCaseListScreen.
 
@@ -2793,7 +2801,7 @@ Work through this checklist top-to-bottom to verify the entire app works correct
   - [ ] Changes the case status to "Reviewed" in SharePoint.
   - [ ] A success notification appears.
   - [ ] You are returned to ReviewerCaseListScreen.
-  - [ ] The case no longer appears in Table 1 (no longer "Ready for Review" or "In Review").
+  - [ ] The case no longer appears in Table 1 (no longer "Ready for review" or "In Review").
 - [ ] The Power Automate Flow 1 fires and the reportee (ID SO) receives a Teams message. Check the Teams account of the person in the ID SO column.
 
 ---
@@ -2840,8 +2848,8 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 - [ ] After marking ALL issues as Completed:
   - [ ] The Submit button becomes ENABLED (blue).
   - [ ] The helper text disappears.
-- [ ] Clicking "Submit & Return to Ready for Review":
-  - [ ] Sets the case status to "Ready for Review" in SharePoint.
+- [ ] Clicking "Submit & Return to Ready for review":
+  - [ ] Sets the case status to "Ready for review" in SharePoint.
   - [ ] A success notification appears.
   - [ ] You are returned to ReporteeCaseListScreen.
   - [ ] The case no longer appears in the "Reviewed (Action Required)" filter (or its status badge has changed).
@@ -2857,8 +2865,8 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 - [ ] Clicking "Re-review" (or clicking the row) opens ReviewerCaseDetailScreen.
 - [ ] All existing issues show with SO Replies in blue boxes.
 - [ ] A new issue can be added (it will get a ReviewRound number of 2 if the formula works correctly — verify by checking the Case Issues list in SharePoint after adding).
-- [ ] "Case Completed" button changes status to "Case Completed" and returns to the case list.
-- [ ] The completed case does NOT appear in Table 1 or Table 2 (it is filtered out because its status is "Case Completed").
+- [ ] "Case completed" button changes status to "Case completed" and returns to the case list.
+- [ ] The completed case does NOT appear in Table 1 or Table 2 (it is filtered out because its status is "Case completed").
 
 ---
 
@@ -2868,7 +2876,7 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 - [ ] Try adding an issue with only some fields filled in — warning appears, no record created.
 - [ ] Open the app on a case that has zero issues. The Issues gallery shows "0 issues" badge. "Mark as Reviewed" button shows a warning.
 - [ ] Verify that the LIMS text does NOT include issues where ReportInLIMS = No (uncheck the LIMS checkbox when adding an issue to test this).
-- [ ] Verify delegation: if you have more than 500 cases in the Lab Cases list, check whether the gallery still filters and sorts correctly. If not, add indexes to the "Task status" and "Sub-case ID" columns in SharePoint list settings (go to List settings → Indexed columns → Add a new index).
+- [ ] Verify delegation: if you have more than 500 cases in the Case Assignment Tracker list, check whether the gallery still filters and sorts correctly. If not, add indexes to the "Task status" and "Title" columns in SharePoint list settings (go to List settings → Indexed columns → Add a new index).
 
 ---
 
@@ -2879,16 +2887,16 @@ Work through this checklist top-to-bottom to verify the entire app works correct
 Power Apps shows a blue delegation warning triangle on gallery Items formulas that use certain functions on large lists. For lists under 2,000 items this is not a problem. For larger lists:
 
 1. In your SharePoint list, go to **Settings** → **Indexed columns** → **Create a new index**.
-2. Add an index on **Task status** and another on **Sub-case ID**.
+2. Add an index on **Task status** and another on **Title** (the Sub-case ID column).
 3. In Power Apps, go to **File** → **Settings** → **General** → increase **Data row limit** to 2000.
 
 ### Gallery not refreshing
 
-If the gallery does not update after a `Patch`, add `Refresh('Lab Cases')` or `Refresh('Case Issues')` after the Patch call:
+If the gallery does not update after a `Patch`, add `Refresh('Case Assignment Tracker')` or `Refresh('Case Issues')` after the Patch call:
 
 ```
-Patch('Lab Cases', gblSelectedCase, {'Task status': {Value: "Reviewed"}});
-Refresh('Lab Cases');
+Patch('Case Assignment Tracker', gblSelectedCase, {'Task status': {Value: "Reviewed"}});
+Refresh('Case Assignment Tracker');
 Navigate(ReviewerCaseListScreen, ScreenTransition.Fade)
 ```
 
@@ -2906,10 +2914,10 @@ When patching a Choice column you must wrap the value:
 
 ```
 // CORRECT:
-Patch('Lab Cases', gblSelectedCase, {'Task status': {Value: "Reviewed"}})
+Patch('Case Assignment Tracker', gblSelectedCase, {'Task status': {Value: "Reviewed"}})
 
 // WRONG — will cause an error:
-Patch('Lab Cases', gblSelectedCase, {'Task status': "Reviewed"})
+Patch('Case Assignment Tracker', gblSelectedCase, {'Task status': "Reviewed"})
 ```
 
 ### Flow triggers on every change
@@ -2952,7 +2960,7 @@ HomeScreen
 │   │   ├── [Copy Issues for LIMS] → LIMSCopyScreen
 │   │   │   └── [Close] → ReviewerCaseDetailScreen
 │   │   ├── [Mark as Reviewed] → ReviewerCaseListScreen
-│   │   └── [Case Completed] → ReviewerCaseListScreen
+│   │   └── [Case completed] → ReviewerCaseListScreen
 │   └── [Switch Role] → HomeScreen
 └── [Reportee card] → ReporteeCaseListScreen
     ├── [Row tap] → ReporteeIssueScreen
@@ -2968,7 +2976,7 @@ HomeScreen
 | Variable | Type | Set in | Used for |
 |----------|------|--------|---------|
 | `gblUserRole` | Text ("Reviewer" or "Reportee") | HomeScreen role buttons | (Optional filtering / future personalisation) |
-| `gblSelectedCase` | Record from Lab Cases | Any gallery OnSelect | Populating all detail screens |
+| `gblSelectedCase` | Record from Case Assignment Tracker | Any gallery OnSelect | Populating all detail screens |
 | `gblLIMSText` | Text | RCDCopyLIMSBtn OnSelect | Displaying LIMS-formatted text on LIMSCopyScreen |
 
 ---
