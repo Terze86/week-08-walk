@@ -1,5 +1,11 @@
 # Probe Ladder — Validating the Pipeline With Minimum User Effort
 
+> **STATUS (2026-07-02): ALL THREE PROBES IMPORTED SUCCESSFULLY** on the HSA
+> tenant against the 4ControlType donor harvest. Probe 2 confirms from-scratch
+> screen generation — screens that never existed in Studio import and run.
+> The ladder does NOT need to be re-run for new apps; re-run it only after a
+> re-harvest or if a previously-working build starts failing.
+
 We cannot import-test .msapp files ourselves; the only oracle is the user's Power Apps tenant, reached via email + Jupyter. A failed full app wastes an hour and yields one opaque error code. The ladder isolates failures layer by layer with three ~1-minute imports. Run it the FIRST time this pipeline is used on a tenant, and again after any re-harvest or platform update. Send all three probes in ONE email; the user imports them in order and reports the first failure.
 
 ## Probe 0 — Repack the donor unchanged

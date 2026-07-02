@@ -6,6 +6,15 @@ version: 1.0.0
 
 # Power Apps .msapp Builder — From-Scratch App Compiler
 
+> **PIPELINE CONFIRMED WORKING (2026-07-02):** bootstrapped with the user's
+> 4ControlType donor (`assets/donor-harvest/`), and all three probe-ladder
+> imports succeeded on the HSA tenant — including probe 2's from-scratch
+> screens that never existed in Studio. Phase 0 and Phase 4 are DONE for this
+> tenant: for new app requests go straight to Phase 1 → 2 → 3. Available spec
+> types: label, button, text, dropdown, gallery, gallery_blank, rectangle,
+> icon, image. The donor's SharePoint connection carries into every build;
+> new data sources are added post-import in Studio (Data → Add data).
+
 Successor to `powerapps-solution-design` (V1–V17). That skill could only *clone* controls inside a user-exported .msapp, so the user had to create every screen and one seed control of every type in Studio before the agent could do anything. This skill removes that requirement: after a **one-time donor harvest**, every app is generated fully from scratch — any number of screens, any names, any controls — and the user only imports.
 
 Read `references/why-from-scratch-failed.md` for the root-cause analysis of why the old approach couldn't do this. Short version: an .msapp is ~20 interlocking files with strict cross-file invariants (template registry, control counts, UID/Index sequences, editor state, YAML↔JSON mirrors). The old skill *grafted* changes into Studio exports, so one stale registry file crashed the import with an opaque error. This skill instead *emits every file consistently from one generator* — the same strategy as Microsoft's own MSAppGenerator (.NET), ported to pure Python.

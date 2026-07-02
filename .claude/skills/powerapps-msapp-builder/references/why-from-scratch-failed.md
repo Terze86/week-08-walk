@@ -39,6 +39,12 @@ The only test signal was a generic error code (`ErrOpeningDocument_UnknownError`
 3. **Machine-checked invariants** (`verify_msapp.py`) replace the old prose checklist — every crash cause from V4–V17 is a named check.
 4. **Probe ladder** (see `probe-protocol.md`) turns the terrible feedback loop into a bisect: three one-minute imports isolate packing vs. compilation vs. new-structure failures before any real app ships.
 
-## Residual risk (be honest with the user)
+## Residual risk — RESOLVED (2026-07-02)
 
-New-screen generation has never been *confirmed* to import on this tenant — the old V4 crash was a graft, not a clean generation, so the evidence against it doesn't apply, but positive evidence doesn't exist yet either. That's exactly what probe 3 in the ladder tests. If the platform importer turns out to validate something we can't see (e.g., a checksum file in newer DocVersions), fallback paths are documented in SKILL.md.
+The probe ladder ran on the HSA tenant and **all three probes imported
+successfully**, including probe 2's two screens that never existed in Studio.
+From-scratch generation is now a *confirmed* capability of this pipeline, not
+a hypothesis — the old doctrine ("we cannot create .msapp files from scratch")
+is formally disproven on the very tenant where it was written. Fallback paths
+in SKILL.md remain documented in case a platform update changes the importer;
+re-run the ladder after any re-harvest.
