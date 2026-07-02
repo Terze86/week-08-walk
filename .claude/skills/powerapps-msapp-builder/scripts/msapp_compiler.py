@@ -156,6 +156,18 @@ class Compiler:
         if (ctrl.get("Template") or {}).get("Name") == "gallery":
             return  # gallery seeds sit at screen level; items handled on rename
         spec_set = set(spec_props or {})
+        # Hard rule: screen-level rectangles must not carry ZIndex (donor
+        # rectangle seeds come from inside a gallery and inherit ZIndex>0,
+        # which renders the bar on top of its own labels). Drop it unless the
+        # spec explicitly sets one.
+        if (screen_level and (ctrl.get("Template") or {}).get("Name") == "rectangle"
+                and "ZIndex" not in spec_set):
+            ctrl["Rules"] = [r for r in ctrl.get("Rules") or []
+                             if r["Property"] != "ZIndex"]
+            ctrl["ControlPropertyState"] = [
+                e for e in ctrl.get("ControlPropertyState") or []
+                if (e.get("InvariantPropertyName") if isinstance(e, dict) else e)
+                != "ZIndex"]
         donor_names = [n for n in self.yaml_controls if n]
         donor_re = (re.compile(r"\b(" + "|".join(map(re.escape, donor_names))
                                + r")\b") if donor_names else None)
