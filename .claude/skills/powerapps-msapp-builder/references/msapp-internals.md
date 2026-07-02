@@ -29,28 +29,34 @@ Key fields: `Name`, `Template` {Id, Name, Version, ...}, `Index`, `PublishOrderI
 
 **`ControlPropertyState` is a mixed-type array**: plain strings for most properties, but the `Text` entry is a complex object (`{InvariantPropertyName:"Text", AutoRuleBindingEnabled:false, AutoRuleBindingString:"", NameMapSourceSchema:"?", IsLockable:false, AFDDataSourceName:""}`). Flattening it crashes import — always `copy.deepcopy()` templates; when ADDING a new rule, append the property name as a plain string.
 
-## Identity/ordering rules (each one is a confirmed crash cause)
+## Identity/ordering rules (MEASURED from the real donor export, July 2026)
 
 | Field | Rule | Violation symptom |
 |---|---|---|
-| ControlUniqueId | unique app-wide, sequential-ish (App=1, screens from 4) | ErrOpeningDocument_UnknownError |
+| ControlUniqueId | unique app-wide; App=1, Host=3, screens/controls from 4 | ErrOpeningDocument_UnknownError |
 | Controls filename | `<screen uid>.json` | crash |
-| Index | unique within each parent's Children | screen silently missing (V16) |
-| PublishOrderIndex | globally sequential, no gaps (0,1,2… not 0,1,100) | ErrOpeningDocument_UnknownError (V13/V15) |
-| Parent | exact parent control name | crash |
+| Index | per (Template.Name, VariantName) sequence among DIRECT screen children (labels 0,1,2… while the button is 0); gallery items all keep Index=0 | duplicate within a type at screen level → screen silently missing (V16) |
+| PublishOrderIndex | App/Host/screens all 0; non-screen controls form ONE global 0..N-1 sequence in child-array DFS order across screens | gaps → ErrOpeningDocument_UnknownError (V13/V15) |
+| Parent | exact parent control name (gallery items → the GALLERY's name) | crash |
 | StyleName | must exist in Themes.json | crash |
 | Template Id+Version | must appear in Templates.json | ErrOpeningDocument_UnknownError (V6 "cross-app" crash) |
+| ControlCount (Properties.json) | donor convention: only some types listed (screen, label); gallery descendants NOT counted | unknown — kept donor-consistent |
 
-## Gallery anatomy
+## Gallery anatomy (MEASURED — the old docs had this wrong)
 
-Gallery control → `Children[0]` is a `galleryTemplate` control → its `Children` hold the per-item controls (`Parent` = the galleryTemplate's name, coordinates relative to the item). In YAML, item controls nest directly under the gallery's `Children:` — the galleryTemplate node is NOT written in YAML. Galleries render empty without `TemplateSize`/`TemplatePadding`.
+A gallery's `Children` array holds ONE internal `galleryTemplate` node **plus the item controls as its siblings** — items are direct children of the gallery with `Parent` = the gallery's name and `Index` = 0, NOT nested inside the galleryTemplate. Item formulas may reference sibling items by name (e.g. `Subtitle1` uses `Title1.Y`) — renaming items requires rewriting those formulas. In YAML, item controls nest under the gallery's `Children:`; the galleryTemplate node is never written. Galleries render empty without `TemplateSize`/`TemplatePadding`.
 
-## YAML mirror
+## YAML mirror (MEASURED)
 
-- Every JSON rule appears as `Prop: =script` (multi-line → `Prop: |-` block, continuation indented +2 under the property).
-- Screen file shape: `Screens:` → `<name>:` → `Properties:` / `Children:` (list of `- ctrlName:` with `Control: Type@Version`, optional `Variant:`, `Properties:`).
-- Control type strings (donor harvest overrides these defaults): Label@2.5.1, Classic/Button@2.2.0, Classic/TextInput@2.3.2, Classic/DropDown@2.3.1, Gallery@2.15.0 (+ `Variant: Vertical`), Rectangle@2.3.0, Classic/Icon@2.5.0, Image@2.2.3.
-- The importer treats the JSON as authoritative but YAML/JSON drift has caused failures — the compiler renders both from one rule list.
+- YAML is a **DELTA**, not a full mirror: Studio writes only a subset of the JSON rules (donor label: 8 YAML props vs 39 JSON rules), alphabetized. The compiler emits harvested-per-template prop names ∪ spec-set names, with values always read from the JSON rules so drift is impossible.
+- Multi-line formulas → `Prop: |-` block, `=` on the first continuation line, indented +2.
+- Screen file shape: Studio banner comment, then `Screens:` → `<name>:` → `Properties:` / `Children:` (list of `- ctrlName:` with `Control: Type@Version`, optional `Variant:`, `Properties:`).
+- `_EditorState.pa.yaml`: banner + `EditorState:` → `ScreensOrder:` list.
+- YAML `Variant:` ≠ JSON `VariantName` (blank gallery: YAML `Vertical`, JSON `galleryVertical`) — use harvested YAML strings, never the JSON field.
+- Donor YAML can contain prop names with no JSON rule (dropdown `Items.Value`) — emit only names that exist as JSON rules.
+- Control type strings (donor harvest overrides these defaults): Label@2.5.1, Classic/Button@2.2.0, Classic/TextInput@2.3.2, Classic/DropDown@2.3.1, Gallery@2.15.0, Rectangle@2.3.0, Classic/Icon@2.5.0, Image@2.2.3.
+- `%RESERVED%` legitimately appears in Studio's Templates.json/Themes.json — it is only a defect inside Controls/ and Src/ files.
+- Studio zips with backslash member paths (`Controls\4.json`); packing with forward slashes is confirmed importable.
 
 ## Error table
 

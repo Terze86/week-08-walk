@@ -1,0 +1,27 @@
+{
+  "name": "Probe2-HelloWorld",
+  "onstart": "Set(varProbe2, true);\nClearCollect(colProbe, [\"alpha\", \"beta\", \"gamma\"])",
+  "screens": [
+    {
+      "name": "scrFirst",
+      "properties": { "Fill": "RGBA(245, 246, 250, 1)" },
+      "controls": [
+        { "type": "label", "name": "lblFirst",
+          "properties": { "Text": "\"Hello from screen one\"", "X": "40", "Y": "40", "Width": "600", "Height": "48", "Size": "24", "FontWeight": "FontWeight.Bold" } },
+        { "type": "button", "name": "btnGoSecond",
+          "properties": { "Text": "\"Go to screen two\"", "OnSelect": "Navigate(scrSecond, ScreenTransition.Fade)", "X": "40", "Y": "120", "Width": "240", "Height": "44" } }
+      ]
+    },
+    {
+      "name": "scrSecond",
+      "controls": [
+        { "type": "label", "name": "lblSecond",
+          "properties": { "Text": "\"This screen never existed in Studio\"", "X": "40", "Y": "40", "Width": "700", "Height": "48", "Size": "24" } },
+        { "type": "label", "name": "lblCollection",
+          "properties": { "Text": "\"OnStart collection rows: \" & CountRows(colProbe)", "X": "40", "Y": "110", "Width": "500", "Height": "40" } },
+        { "type": "button", "name": "btnGoFirst",
+          "properties": { "Text": "\"Back\"", "OnSelect": "Navigate(scrFirst, ScreenTransition.Fade)", "X": "40", "Y": "180", "Width": "160", "Height": "44" } }
+      ]
+    }
+  ]
+}

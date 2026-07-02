@@ -1,0 +1,48 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+App:
+  Properties:
+    OnStart: |-
+      =Set(ManagementEmails, ["management1@hsa.gov.sg", "management2@hsa.gov.sg"]);
+      Set(IsManagement, User().Email in ManagementEmails);
+
+      ClearCollect(LOCompetencies,
+        {ID: 1, Name: "Regulatory Framework & Legislation", Definition: "Knowledge of HSA legislation, regulatory frameworks and guidelines."},
+        {ID: 2, Name: "Risk Assessment & Management", Definition: "Ability to identify, assess and mitigate regulatory risks."},
+        {ID: 3, Name: "Inspection & Investigation", Definition: "Conducting inspections and investigations effectively."},
+        {ID: 4, Name: "Enforcement & Compliance", Definition: "Applying enforcement actions and ensuring compliance."},
+        {ID: 5, Name: "Stakeholder Engagement", Definition: "Engaging with internal and external stakeholders."},
+        {ID: 6, Name: "Professional Conduct & Ethics", Definition: "Maintaining professional standards and ethical behaviour."}
+      );
+
+      ClearCollect(SOCompetencies,
+        {ID: 1, Name: "Regulatory Framework & Legislation", Definition: "Knowledge of HSA legislation, regulatory frameworks and guidelines."},
+        {ID: 2, Name: "Risk Assessment & Management", Definition: "Ability to identify, assess and mitigate regulatory risks."},
+        {ID: 3, Name: "Inspection & Investigation", Definition: "Conducting inspections and investigations effectively."},
+        {ID: 4, Name: "Enforcement & Compliance", Definition: "Applying enforcement actions and ensuring compliance."},
+        {ID: 5, Name: "Stakeholder Engagement", Definition: "Engaging with internal and external stakeholders."},
+        {ID: 6, Name: "Professional Conduct & Ethics", Definition: "Maintaining professional standards and ethical behaviour."}
+      );
+
+      ClearCollect(LOProficiencyLevels,
+        {Level: 1, Label: "Level 1 - Foundational", Description: "Basic awareness. Requires guidance to apply."},
+        {Level: 2, Label: "Level 2 - Developing", Description: "Can apply with supervision. Understands key concepts."},
+        {Level: 3, Label: "Level 3 - Proficient", Description: "Works independently. Applies knowledge effectively."},
+        {Level: 4, Label: "Level 4 - Advanced", Description: "Provides guidance to others. Handles complex situations."},
+        {Level: 5, Label: "Level 5 - Expert", Description: "Recognised expert. Drives best practice and innovation."}
+      );
+
+      ClearCollect(SOProficiencyLevels,
+        {Level: 1, Label: "Level 1 - Foundational", Description: "Basic awareness. Requires guidance to apply."},
+        {Level: 2, Label: "Level 2 - Developing", Description: "Can apply with supervision. Understands key concepts."},
+        {Level: 3, Label: "Level 3 - Proficient", Description: "Works independently. Applies knowledge effectively."},
+        {Level: 4, Label: "Level 4 - Advanced", Description: "Provides guidance to others. Handles complex situations."},
+        {Level: 5, Label: "Level 5 - Expert", Description: "Recognised expert. Drives best practice and innovation."}
+      )
+    Theme: =PowerAppsTheme

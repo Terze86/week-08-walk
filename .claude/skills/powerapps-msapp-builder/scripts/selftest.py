@@ -99,7 +99,7 @@ DONOR_FILES = {
     "Resources/PublishInfo.json": json.dumps({"AppName": "Donor"}),
     "Src/App.pa.yaml": (
         "App:\n  Properties:\n    OnStart: |-\n      =Set(varDonor, true)\n"),
-    "Src/_EditorState.pa.yaml": "ScreenOrder:\n  - scrDonor\n",
+    "Src/_EditorState.pa.yaml": "EditorState:\n  ScreensOrder:\n    - scrDonor\n",
     "Src/scrDonor.pa.yaml": (
         "Screens:\n  scrDonor:\n    Properties:\n"
         "      Fill: =RGBA(255, 255, 255, 1)\n    Children:\n"

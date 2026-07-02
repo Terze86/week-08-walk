@@ -1,0 +1,44 @@
+{
+  "name": "Probe1-DonorEquivalent",
+  "onstart": "Set(varProbe1, true)",
+  "screens": [
+    {
+      "name": "scrLanding",
+      "controls": [
+        { "type": "label", "name": "lblTemp1",
+          "properties": { "Text": "\"Probe 1 — Landing\"", "X": "40", "Y": "40", "Width": "600", "Size": "24", "FontWeight": "FontWeight.Bold" } },
+        { "type": "button", "name": "btnTemplate",
+          "properties": { "X": "60", "Y": "120", "Text": "\"Button\"" } },
+        { "type": "text", "name": "txtTemplate",
+          "properties": { "X": "80", "Y": "200" } },
+        { "type": "dropdown", "name": "ddTemplate",
+          "properties": { "X": "120", "Y": "280" } },
+        { "type": "gallery", "name": "galTest",
+          "properties": { "X": "160", "Y": "360", "Width": "550", "Height": "300" } },
+        { "type": "gallery_blank", "name": "blkGalTest",
+          "properties": { "X": "740", "Y": "360", "Width": "550", "Height": "300", "TemplateSize": "60", "TemplatePadding": "0" } }
+      ]
+    },
+    {
+      "name": "scrEntry",
+      "controls": [
+        { "type": "label", "name": "lblTemp2",
+          "properties": { "Text": "\"Entry\"", "X": "40", "Y": "40" } }
+      ]
+    },
+    {
+      "name": "scrCompetencyDetail",
+      "controls": [
+        { "type": "label", "name": "lblTemp3",
+          "properties": { "Text": "\"Detail\"", "X": "40", "Y": "40" } }
+      ]
+    },
+    {
+      "name": "scrManagement",
+      "controls": [
+        { "type": "label", "name": "lblTemp4",
+          "properties": { "Text": "\"Management\"", "X": "40", "Y": "40" } }
+      ]
+    }
+  ]
+}

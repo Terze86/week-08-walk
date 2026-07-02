@@ -46,19 +46,21 @@ def verify(build_dir):
         if fname != expected:
             errors.append(f"{fname}: filename should be {expected} "
                           f"(TopParent uid={top.get('ControlUniqueId')})")
-        # Index uniqueness per parent (silent screen loss - V16)
+        # Index uniqueness per (type, variant) among DIRECT screen children —
+        # Studio sequences Index per control type at screen level (duplicates
+        # there silently delete the screen, V16), but gallery items all keep
+        # Index=0 (measured donor convention), so deeper levels are exempt.
         if tname == "screen":
-            def check_children(parent):
-                seen = {}
-                for ch in parent.get("Children") or []:
-                    idx = ch.get("Index")
-                    if idx in seen:
-                        errors.append(
-                            f"{fname} ({parent.get('Name')}): duplicate Index={idx} "
-                            f"({seen[idx]} vs {ch.get('Name')})")
-                    seen[idx] = ch.get("Name")
-                    check_children(ch)
-            check_children(top)
+            seen = {}
+            for ch in top.get("Children") or []:
+                key = ((ch.get("Template") or {}).get("Name", ""),
+                       ch.get("VariantName", ""), ch.get("Index"))
+                if key in seen:
+                    errors.append(
+                        f"{fname} ({top.get('Name')}): duplicate Index="
+                        f"{ch.get('Index')} for type {key[0]}/{key[1]} "
+                        f"({seen[key]} vs {ch.get('Name')})")
+                seen[key] = ch.get("Name")
 
     # UID uniqueness app-wide
     seen_uid = {}
@@ -69,13 +71,25 @@ def verify(build_dir):
                           f"{seen_uid[uid]} vs {node.get('Name')} ({fname})")
         seen_uid[uid] = node.get("Name")
 
-    # PublishOrderIndex: gaps crash import (V13/V15)
-    poi = sorted(int(n.get("PublishOrderIndex", 0)) for _, n in all_nodes)
-    expect = list(range(len(poi)))
-    if poi != expect:
-        dupes = {p for p in poi if poi.count(p) > 1}
-        detail = f"duplicates={sorted(dupes)}" if dupes else f"sequence={poi[:20]}..."
-        errors.append(f"PublishOrderIndex not a clean 0..N-1 sequence ({detail})")
+    # PublishOrderIndex convention (measured from a real Studio export):
+    # App/Host/screens all 0; non-screen controls form one global 0..N-1
+    # sequence across screens. Gaps crash import (V13/V15).
+    poi = []
+    for fname, node in all_nodes:
+        tname = (node.get("Template") or {}).get("Name", "")
+        if tname in ("screen", "appinfo", "appInfo", "hostControl"):
+            if int(node.get("PublishOrderIndex", 0)) != 0:
+                warnings.append(f"{fname} {node.get('Name')}: {tname} has "
+                                f"PublishOrderIndex={node.get('PublishOrderIndex')} "
+                                f"(Studio uses 0)")
+            continue
+        poi.append(int(node.get("PublishOrderIndex", 0)))
+    if sorted(poi) != list(range(len(poi))):
+        spoi = sorted(poi)
+        dupes = {p for p in spoi if spoi.count(p) > 1}
+        detail = f"duplicates={sorted(dupes)}" if dupes else f"sequence={spoi[:20]}..."
+        errors.append(f"PublishOrderIndex not a clean 0..N-1 sequence over "
+                      f"non-screen controls ({detail})")
 
     # ControlPropertyState: Text entry must stay a complex object where template had one
     for fname, node in all_nodes:
@@ -104,26 +118,36 @@ def verify(build_dir):
     for fname, node in all_nodes:
         tpl = node.get("Template") or {}
         tid, tname = tpl.get("Id", ""), tpl.get("Name", "")
-        if tname in ("appinfo", "appInfo", "screen", "galleryTemplate"):
+        if tname in ("appinfo", "appInfo", "screen", "galleryTemplate",
+                     "hostControl"):
             continue
         if tpl_text and tid and tid not in tpl_text and tname not in tpl_text:
             errors.append(f"{fname} {node.get('Name')}: Template.Id '{tid}' "
                           f"not registered in References/Templates.json")
 
-    # ControlCount in Properties.json matches actual counts
+    # ControlCount in Properties.json matches actual counts. Measured donor
+    # convention: only some template names are listed, and gallery
+    # descendants are NOT counted.
     props_path = os.path.join(build_dir, "Properties.json")
     with open(props_path, encoding="utf-8") as f:
         props = json.load(f)
     declared = props.get("ControlCount") or {}
     actual = {}
-    for _, node in all_nodes:
+
+    def count(node, in_gallery):
         tname = (node.get("Template") or {}).get("Name", "")
-        if tname:
+        if tname and not in_gallery:
             actual[tname] = actual.get(tname, 0) + 1
+        for child in node.get("Children") or []:
+            count(child, in_gallery or tname == "gallery")
+
+    for _fname, data in controls:
+        count(data.get("TopParent", {}), False)
     for key, cnt in declared.items():
         if actual.get(key, 0) != cnt:
             errors.append(f"Properties.json ControlCount['{key}']={cnt} "
-                          f"but actual={actual.get(key, 0)}")
+                          f"but actual (excluding gallery descendants)="
+                          f"{actual.get(key, 0)}")
 
     # Screen YAML mirrors exist and mention every control name
     src_dir = os.path.join(build_dir, "Src")
@@ -155,9 +179,12 @@ def verify(build_dir):
                     text = fh.read()
             except (UnicodeDecodeError, PermissionError):
                 continue
-            if "%RESERVED%" in text or ".RESERVED%" in text:
-                errors.append(f"{rel}: contains %RESERVED% enum prefix")
+            # %RESERVED% legitimately appears in Studio's registry files
+            # (Templates.json, Themes.json); it is only a defect inside
+            # control formulas and YAML
             if rel.startswith("Src") or rel.startswith("Controls"):
+                if "%RESERVED%" in text or ".RESERVED%" in text:
+                    errors.append(f"{rel}: contains %RESERVED% enum prefix")
                 if re.search(r"\bSortBy\s*\(", text):
                     warnings.append(f"{rel}: SortBy() — unsupported on old Power Fx tenants")
                 if re.search(r"Navigate\([^)]*,\s*None\s*\)", text):
@@ -165,18 +192,25 @@ def verify(build_dir):
                 if "Width: =1366" in text or '"InvariantScript": "1366"' in text:
                     warnings.append(f"{rel}: hardcoded width 1366 — use App.Width")
 
-    # Rectangle-specific visual rules
-    for fname, node in all_nodes:
-        if (node.get("Template") or {}).get("Name") not in ("rectangle", "shape"):
+    # Rectangle-specific visual rules — only for rectangles placed directly
+    # on a screen (gallery-item rectangles like separators legitimately
+    # carry ZIndex in Studio's own output)
+    for fname, data in controls:
+        top = data.get("TopParent", {})
+        if (top.get("Template") or {}).get("Name") != "screen":
             continue
-        rules = {r.get("Property"): r.get("InvariantScript")
-                 for r in node.get("Rules") or []}
-        if rules.get("ZIndex") not in (None, "0"):
-            warnings.append(f"{fname} {node.get('Name')}: rectangle has ZIndex="
-                            f"{rules.get('ZIndex')} — will cover text; remove it")
-        for req in ("X", "Y", "Height"):
-            if req not in rules:
-                warnings.append(f"{fname} {node.get('Name')}: rectangle missing {req}")
+        for node in top.get("Children") or []:
+            if (node.get("Template") or {}).get("Name") not in ("rectangle", "shape"):
+                continue
+            rules = {r.get("Property"): r.get("InvariantScript")
+                     for r in node.get("Rules") or []}
+            if rules.get("ZIndex") not in (None, "0"):
+                warnings.append(f"{fname} {node.get('Name')}: screen-level rectangle "
+                                f"has ZIndex={rules.get('ZIndex')} — will cover "
+                                f"text; remove it")
+            for req in ("X", "Y", "Height"):
+                if req not in rules:
+                    warnings.append(f"{fname} {node.get('Name')}: rectangle missing {req}")
 
     # Gallery visibility rules
     for fname, node in all_nodes:

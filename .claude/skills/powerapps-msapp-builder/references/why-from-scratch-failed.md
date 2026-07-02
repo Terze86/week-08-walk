@@ -11,8 +11,8 @@ Every failed attempt (V4 new screens, V6 cross-app clone, V13 rectangles into V1
 | Every `Template.Id`+`Version` used by any control must be registered | `References/Templates.json` (full widget XML per type) | `ErrOpeningDocument_UnknownError` |
 | Per-template control counts must match reality | `Properties.json` → `ControlCount` | import crash / corrupt state |
 | `ControlUniqueId` unique + coherent app-wide; screen file named `<uid>.json` | `Controls/*.json` | crash |
-| `Index` unique within each parent's `Children` | `Controls/*.json` | **silent** screen deletion (V16) |
-| `PublishOrderIndex` globally sequential, no gaps | `Controls/*.json` | crash (V13/V15) |
+| `Index` unique per control type among a screen's direct children | `Controls/*.json` | **silent** screen deletion (V16) |
+| `PublishOrderIndex` one gapless global sequence over non-screen controls | `Controls/*.json` | crash (V13/V15) |
 | Screen list / editor ordering | `Src/_EditorState.pa.yaml` | crash on new screens (V4) |
 | YAML mirrors JSON rule-for-rule | `Src/*.pa.yaml` ↔ `Controls/*.json` | crash or lost edits (V12) |
 | `StyleName` must exist in theme | `References/Themes.json` | crash |

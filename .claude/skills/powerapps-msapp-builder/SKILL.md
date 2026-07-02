@@ -50,8 +50,8 @@ Because we cannot import-test locally, the FIRST time this pipeline is used agai
 - `copy.deepcopy()` templates; never hand-build `ControlPropertyState` (mixed types: strings + one complex object for Text).
 - Templates and registries must come from the SAME harvest — never mix donors.
 - `ControlUniqueId` unique app-wide, sequential; screen's Controls file is named `<uid>.json`.
-- `Index` unique per parent (duplicates silently delete the screen); `PublishOrderIndex` globally sequential, no gaps.
-- Every JSON rule mirrored in the screen's `Src/*.pa.yaml`; the compiler generates both from one source of truth so drift is impossible.
+- `Index` is a per-control-type sequence among direct screen children (duplicates within a type silently delete the screen); gallery items keep Index=0. `PublishOrderIndex`: screens 0, non-screen controls one global gapless 0..N-1 DFS sequence. (Measured from the real donor — see `references/msapp-internals.md`.)
+- YAML is a delta of the JSON rules (Studio convention); the compiler emits both from one source of truth with values always taken from JSON, so drift is impossible.
 - No `%RESERVED%` enum prefixes; no `ZIndex` on rectangles; `App.Width` not hardcoded 1366; lowest-common-denominator Power Fx (no `SortBy()`, no `Navigate(scr, None)`, `.Value` on choice reads, `var`-prefixed variables).
 
 ## Fallbacks if a generated app won't import
