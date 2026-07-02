@@ -1,0 +1,427 @@
+{
+  "source_msapp": "7032cb4a-4ControlType.msapp",
+  "app_controls_file": "1.json",
+  "screen_files": [
+    "10.json",
+    "12.json",
+    "4.json",
+    "8.json"
+  ],
+  "screen_names": [
+    "scrCompetencyDetail",
+    "scrManagement",
+    "scrLanding",
+    "scrEntry"
+  ],
+  "templates": [
+    "button",
+    "dropdown",
+    "gallery",
+    "gallery_blank",
+    "icon",
+    "image",
+    "label",
+    "rectangle",
+    "text"
+  ],
+  "template_sources": {
+    "label": "lblTemp3",
+    "button": "btnTemplate",
+    "text": "txtTemplate",
+    "dropdown": "ddTemplate",
+    "gallery": "galTemplate",
+    "rectangle": "Rectangle1",
+    "image": "Image1",
+    "icon": "NextArrow1",
+    "gallery_blank": "blkGalTemplate"
+  },
+  "max_uid": 27,
+  "yaml_type_map": {
+    "label": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "Text",
+        "X",
+        "Y"
+      ]
+    },
+    "button": {
+      "control": "Classic/Button@2.2.0",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Color",
+        "DisabledBorderColor",
+        "Fill",
+        "Font",
+        "HoverBorderColor",
+        "HoverColor",
+        "HoverFill",
+        "PressedBorderColor",
+        "PressedColor",
+        "PressedFill",
+        "X",
+        "Y"
+      ]
+    },
+    "text": {
+      "control": "Classic/TextInput@2.3.2",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "HoverBorderColor",
+        "HoverFill",
+        "X",
+        "Y"
+      ]
+    },
+    "dropdown": {
+      "control": "Classic/DropDown@2.3.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "ChevronBackground",
+        "ChevronFill",
+        "ChevronHoverBackground",
+        "ChevronHoverFill",
+        "Font",
+        "HoverFill",
+        "Items.Value",
+        "PressedColor",
+        "PressedFill",
+        "SelectionColor",
+        "SelectionFill",
+        "X",
+        "Y"
+      ]
+    },
+    "gallery": {
+      "control": "Gallery@2.15.0",
+      "variant": "BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0",
+      "props": [
+        "BorderColor",
+        "X",
+        "Y"
+      ]
+    },
+    "rectangle": {
+      "control": "Rectangle@2.3.0",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Fill",
+        "Height",
+        "OnSelect",
+        "Visible",
+        "Width"
+      ]
+    },
+    "image": {
+      "control": "Image@2.2.3",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Height",
+        "OnSelect",
+        "RadiusBottomLeft",
+        "RadiusBottomRight",
+        "RadiusTopLeft",
+        "RadiusTopRight",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "icon": {
+      "control": "Classic/Icon@2.5.0",
+      "variant": null,
+      "props": [
+        "AccessibleLabel",
+        "BorderColor",
+        "Color",
+        "DisabledBorderColor",
+        "DisabledColor",
+        "Height",
+        "Icon",
+        "OnSelect",
+        "PaddingBottom",
+        "PaddingLeft",
+        "PaddingRight",
+        "PaddingTop",
+        "Tooltip",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "gallery_blank": {
+      "control": "Gallery@2.15.0",
+      "variant": "Vertical",
+      "props": [
+        "BorderColor",
+        "X",
+        "Y"
+      ]
+    }
+  },
+  "yaml_controls": {
+    "lblTemp3": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "Text",
+        "X",
+        "Y"
+      ]
+    },
+    "lblTemp2": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "Text",
+        "X",
+        "Y"
+      ]
+    },
+    "lblTemp1": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "FontWeight",
+        "Size",
+        "Text",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "lblSubtitle": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "Text",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "lblInstructions": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "Text",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "btnTemplate": {
+      "control": "Classic/Button@2.2.0",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Color",
+        "DisabledBorderColor",
+        "Fill",
+        "Font",
+        "HoverBorderColor",
+        "HoverColor",
+        "HoverFill",
+        "PressedBorderColor",
+        "PressedColor",
+        "PressedFill",
+        "X",
+        "Y"
+      ]
+    },
+    "txtTemplate": {
+      "control": "Classic/TextInput@2.3.2",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "HoverBorderColor",
+        "HoverFill",
+        "X",
+        "Y"
+      ]
+    },
+    "ddTemplate": {
+      "control": "Classic/DropDown@2.3.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "ChevronBackground",
+        "ChevronFill",
+        "ChevronHoverBackground",
+        "ChevronHoverFill",
+        "Font",
+        "HoverFill",
+        "Items.Value",
+        "PressedColor",
+        "PressedFill",
+        "SelectionColor",
+        "SelectionFill",
+        "X",
+        "Y"
+      ]
+    },
+    "galTemplate": {
+      "control": "Gallery@2.15.0",
+      "variant": "BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0",
+      "props": [
+        "BorderColor",
+        "X",
+        "Y"
+      ]
+    },
+    "Image1": {
+      "control": "Image@2.2.3",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Height",
+        "OnSelect",
+        "RadiusBottomLeft",
+        "RadiusBottomRight",
+        "RadiusTopLeft",
+        "RadiusTopRight",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "Title1": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Color",
+        "Font",
+        "FontWeight",
+        "Height",
+        "OnSelect",
+        "PaddingBottom",
+        "PaddingLeft",
+        "PaddingRight",
+        "PaddingTop",
+        "Size",
+        "Text",
+        "VerticalAlign",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "Subtitle1": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "FontWeight",
+        "Height",
+        "OnSelect",
+        "PaddingBottom",
+        "PaddingLeft",
+        "PaddingRight",
+        "PaddingTop",
+        "Size",
+        "Text",
+        "VerticalAlign",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "NextArrow1": {
+      "control": "Classic/Icon@2.5.0",
+      "variant": null,
+      "props": [
+        "AccessibleLabel",
+        "BorderColor",
+        "Color",
+        "DisabledBorderColor",
+        "DisabledColor",
+        "Height",
+        "Icon",
+        "OnSelect",
+        "PaddingBottom",
+        "PaddingLeft",
+        "PaddingRight",
+        "PaddingTop",
+        "Tooltip",
+        "Width",
+        "X",
+        "Y"
+      ]
+    },
+    "Separator1": {
+      "control": "Rectangle@2.3.0",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Fill",
+        "Height",
+        "OnSelect",
+        "Width",
+        "Y"
+      ]
+    },
+    "Rectangle1": {
+      "control": "Rectangle@2.3.0",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Fill",
+        "Height",
+        "OnSelect",
+        "Visible",
+        "Width"
+      ]
+    },
+    "blkGalTemplate": {
+      "control": "Gallery@2.15.0",
+      "variant": "Vertical",
+      "props": [
+        "BorderColor",
+        "X",
+        "Y"
+      ]
+    },
+    "lblTemp4": {
+      "control": "Label@2.5.1",
+      "variant": null,
+      "props": [
+        "BorderColor",
+        "Font",
+        "Text",
+        "X",
+        "Y"
+      ]
+    }
+  },
+  "screen_yaml_props": [
+    "LoadingSpinnerColor"
+  ],
+  "yaml_banner": "# ************************************************************************************************\n# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).\n# Use the maker portal to create and edit your Power Apps.\n# \n# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907\n# \n# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623\n# ************************************************************************************************",
+  "control_count_keys": [
+    "label",
+    "screen"
+  ],
+  "has_checksum_file": false
+}

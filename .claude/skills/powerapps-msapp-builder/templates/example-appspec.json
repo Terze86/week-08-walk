@@ -1,0 +1,74 @@
+{
+  "name": "CaseTracker",
+  "onstart": "Set(varReady, true);\nClearCollect(colStatuses, [\"Draft\", \"Completed\"])",
+  "screens": [
+    {
+      "name": "scrLanding",
+      "properties": { "Fill": "RGBA(245, 246, 250, 1)" },
+      "controls": [
+        {
+          "type": "rectangle",
+          "name": "recHeaderBar",
+          "properties": { "X": "0", "Y": "0", "Width": "App.Width", "Height": "80", "Fill": "RGBA(0, 51, 102, 1)" }
+        },
+        {
+          "type": "label",
+          "name": "lblHeader",
+          "properties": { "Text": "\"Case Tracker\"", "X": "40", "Y": "20", "Width": "600", "Height": "40", "Size": "24", "FontWeight": "FontWeight.Bold", "Color": "RGBA(255, 255, 255, 1)" }
+        },
+        {
+          "type": "button",
+          "name": "btnNew",
+          "properties": { "Text": "\"New Case\"", "OnSelect": "Navigate(scrEntry, ScreenTransition.Fade)", "X": "40", "Y": "110", "Width": "180", "Height": "44" }
+        },
+        {
+          "type": "gallery_blank",
+          "name": "galCases",
+          "properties": { "Items": "Filter(Cases, Owner = User().Email)", "TemplateSize": "70", "TemplatePadding": "0", "X": "40", "Y": "180", "Width": "1286", "Height": "500" },
+          "children": [
+            {
+              "type": "label",
+              "name": "galCaseTitle",
+              "properties": { "Text": "ThisItem.Title", "X": "16", "Y": "16", "Width": "600", "Height": "36" }
+            },
+            {
+              "type": "button",
+              "name": "galBtnOpen",
+              "properties": { "Text": "\"Open\"", "OnSelect": "Set(varCase, ThisItem); Navigate(scrEntry)", "X": "Parent.TemplateWidth - 140", "Y": "14", "Width": "110", "Height": "40" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scrEntry",
+      "controls": [
+        {
+          "type": "label",
+          "name": "lblEntryHeader",
+          "properties": { "Text": "\"Case Details\"", "X": "40", "Y": "24", "Size": "24" }
+        },
+        {
+          "type": "text",
+          "name": "txtCaseTitle",
+          "properties": { "Default": "If(IsBlank(varCase), \"\", varCase.Title)", "X": "40", "Y": "100", "Width": "500", "Height": "44" }
+        },
+        {
+          "type": "dropdown",
+          "name": "drpStatus",
+          "properties": { "Items": "colStatuses", "X": "40", "Y": "170", "Width": "260", "Height": "44" }
+        },
+        {
+          "type": "button",
+          "name": "btnSave",
+          "properties": { "Text": "\"Save\"", "OnSelect": "Set(varSaved, Patch(Cases, If(IsBlank(varCase), Defaults(Cases), varCase), {Title: txtCaseTitle.Text, Status: {Value: drpStatus.Selected.Value}}));\nNotify(\"Saved\", NotificationType.Success);\nNavigate(scrLanding)", "X": "40", "Y": "250", "Width": "160", "Height": "44" }
+        },
+        {
+          "type": "button",
+          "name": "btnBack",
+          "properties": { "Text": "\"Back\"", "OnSelect": "Navigate(scrLanding)", "X": "220", "Y": "250", "Width": "160", "Height": "44", "Fill": "RGBA(120, 120, 120, 1)" }
+        }
+      ]
+    }
+  ]
+}
