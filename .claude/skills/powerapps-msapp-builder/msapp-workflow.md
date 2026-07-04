@@ -180,8 +180,10 @@ a "type" column (e.g. 9 method tabs → one Method Log with a Log Type dropdown)
 collections** seeded in OnStart so it imports with ZERO tenant setup.
 
 Because it was ~665 controls, the spec was produced by a **Python generator**
-(`gen_quality_log_spec.py`) rather than hand-written — this is the right pattern
-for anything non-trivial. The generator:
+rather than hand-written — this is the right pattern for anything non-trivial.
+That generator is now packaged as a reusable library: **`scripts/ui_patterns.py`
+(`StyledApp`)** — copy `templates/example_styled_app.py`, define your logs, and
+it emits the full spec. The pattern it produces:
 - defines each log as `{coll, screen, var, group, restrict, fields[], table[]}`,
 - emits per screen: blue header + role dropdown, white left **sidebar nav**
   (grouped, live `CountRows` counts, active-screen highlight), a **table-style
