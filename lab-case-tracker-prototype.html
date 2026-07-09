@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Case Tracker — Prototype</title>
+<style>
+  /* ── Reset & Base ───────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f3f2f1;
+    color: #323130;
+    min-height: 100vh;
+  }
+
+  /* ── Top Nav ────────────────────────────────────────── */
+  .topbar {
+    background: #0078d4;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 48px;
+    gap: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.18);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar h1 { font-size: 16px; font-weight: 600; }
+  .topbar .breadcrumb { font-size: 13px; opacity: .85; }
+  .topbar .spacer { flex: 1; }
+  .topbar button {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    padding: 5px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .topbar button:hover { background: rgba(255,255,255,.25); }
+
+  /* ── Container ──────────────────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* ── Cards ──────────────────────────────────────────── */
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Screen: Home ───────────────────────────────────── */
+  .home-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 96px);
+    gap: 20px;
+    text-align: center;
+  }
+  .home-screen h2 { font-size: 26px; margin-bottom: 8px; }
+  .home-screen p { color: #605e5c; margin-bottom: 16px; }
+  .role-buttons { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .role-btn {
+    background: #fff;
+    border: 2px solid #0078d4;
+    border-radius: 12px;
+    padding: 32px 48px;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    min-width: 220px;
+  }
+  .role-btn:hover { background: #0078d4; color: #fff; }
+  .role-btn:hover .role-icon { color: #fff; }
+  .role-btn .role-icon { font-size: 36px; display: block; margin-bottom: 8px; color: #0078d4; }
+  .role-btn .role-label { font-size: 18px; font-weight: 600; }
+  .role-btn .role-desc { font-size: 13px; color: #605e5c; margin-top: 4px; }
+  .role-btn:hover .role-desc { color: rgba(255,255,255,.8); }
+
+  /* ── Table ──────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #edebe9; color: #605e5c; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+  td { padding: 10px 12px; border-bottom: 1px solid #edebe9; }
+  tr.clickable { cursor: pointer; }
+  tr.clickable:hover { background: #f3f2f1; }
+
+  /* ── Status badges ──────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-ready { background: #fff4ce; color: #835c00; }
+  .badge-inreview { background: #d2e8ff; color: #004578; }
+  .badge-reviewed { background: #ffe0d6; color: #a4262c; }
+  .badge-completed { background: #dff6dd; color: #107c10; }
+
+  /* ── Tier badges (T1=Minor, T2=Major, T3=Critical) ─── */
+  .tier-T1 { background: #e8f5e9; color: #2e7d32; }
+  .tier-T2 { background: #fff8e1; color: #f57f17; }
+  .tier-T3 { background: #ffebee; color: #c62828; font-weight: 700; }
+
+  /* ── Buttons ────────────────────────────────────────── */
+  .btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-primary { background: #0078d4; color: #fff; }
+  .btn-primary:hover { background: #106ebe; }
+  .btn-primary:disabled { background: #c8c6c4; cursor: not-allowed; }
+  .btn-success { background: #107c10; color: #fff; }
+  .btn-success:hover { background: #0b6a0b; }
+  .btn-warning { background: #d83b01; color: #fff; }
+  .btn-warning:hover { background: #b83200; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid #8a8886;
+    color: #323130;
+  }
+  .btn-outline:hover { background: #edebe9; }
+  .btn-sm { padding: 5px 14px; font-size: 13px; }
+
+  /* ── Forms ──────────────────────────────────────────── */
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #323130; }
+  .form-group textarea,
+  .form-group select,
+  .form-group input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #c8c6c4;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .form-group textarea:focus,
+  .form-group select:focus,
+  .form-group input[type="text"]:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 1px #0078d4;
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  /* ── Case Header ────────────────────────────────────── */
+  .case-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .case-header .field { }
+  .case-header .field-label { font-size: 11px; text-transform: uppercase; color: #605e5c; letter-spacing: .3px; margin-bottom: 2px; }
+  .case-header .field-value { font-size: 14px; font-weight: 600; }
+
+  /* ── Issue list ─────────────────────────────────────── */
+  .issue-item {
+    border: 1px solid #edebe9;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #faf9f8;
+  }
+  .issue-item.completed-issue { opacity: .6; background: #dff6dd; }
+  .issue-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+  .issue-desc { font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+
+  /* ── Action bar ─────────────────────────────────────── */
+  .action-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid #edebe9;
+  }
+
+  /* ── Filter bar ─────────────────────────────────────── */
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .filter-bar input, .filter-bar select {
+    padding: 6px 12px;
+    border: 1px solid #c8c6c4;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .filter-bar label { font-size: 13px; font-weight: 600; }
+
+  /* ── Section titles ─────────────────────────────────── */
+  .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+  .section-subtitle { font-size: 14px; color: #605e5c; margin-bottom: 12px; }
+
+  /* ── Hidden screens ─────────────────────────────────── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── Toast / notification ───────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #323130;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    transition: opacity .3s;
+  }
+  .toast.hidden { opacity: 0; pointer-events: none; }
+
+  /* ── Checkbox ───────────────────────────────────────── */
+  .issue-checkbox { display: flex; align-items: flex-start; gap: 10px; }
+  .issue-checkbox input[type="checkbox"] { margin-top: 4px; width: 18px; height: 18px; accent-color: #0078d4; }
+
+  /* ── Count badge ────────────────────────────────────── */
+  .count { font-size: 13px; color: #605e5c; font-weight: 400; }
+
+  /* ── Empty state ────────────────────────────────────── */
+  .empty-state { text-align: center; padding: 40px 20px; color: #a19f9d; }
+  .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+
+  /* ── Section sub-header ────────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-header h3 { font-size: 15px; font-weight: 600; color: #323130; }
+  .table-section { margin-bottom: 28px; }
+
+  /* ── LIMS modal ─────────────────────────────────────── */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px 32px;
+    width: 640px;
+    max-width: 95vw;
+    box-shadow: 0 8px 32px rgba(0,0,0,.22);
+  }
+  .modal h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  .modal .modal-sub { font-size: 13px; color: #605e5c; margin-bottom: 16px; }
+  .modal textarea {
+    width: 100%;
+    height: 220px;
+    padding: 12px;
+    border: 1px solid #c8c6c4;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    background: #f9f9f9;
+  }
+  .modal .modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
+
+  /* ── LIMS checkbox row ──────────────────────────────── */
+  .lims-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #323130;
+  }
+  .lims-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #0078d4; }
+
+  /* ── Returning badge ─────────────────────────────────  */
+  .badge-returning { background: #e8f4fd; color: #004578; }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .role-btn { min-width: 160px; padding: 24px 32px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ Top Bar ════════ -->
+<div class="topbar">
+  <h1>Lab Case Tracker</h1>
+  <span class="breadcrumb" id="breadcrumb"></span>
+  <div class="spacer"></div>
+  <span id="roleDisplay" style="font-size:13px;"></span>
+  <button id="btnLogout" style="display:none;" onclick="goHome()">Switch Role</button>
+  <button onclick="resetData()">Reset Data</button>
+</div>
+
+<!-- ════════ Toast ════════ -->
+<div class="toast hidden" id="toast"></div>
+
+<!-- ════════ Screen: Home ════════ -->
+<div class="screen active" id="screenHome">
+  <div class="container home-screen">
+    <h2>Lab Case Tracker</h2>
+    <p>Select your role to get started</p>
+    <div class="role-buttons">
+      <button class="role-btn" type="button" onclick="selectRole('reviewer')">
+        <span class="role-icon">&#128269;</span>
+        <span class="role-label">Reviewer</span>
+        <span class="role-desc">Review cases &amp; log issues</span>
+      </button>
+      <button class="role-btn" type="button" onclick="selectRole('reportee')">
+        <span class="role-icon">&#128221;</span>
+        <span class="role-label">Reportee</span>
+        <span class="role-desc">Respond to issues &amp; update status</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ Screen: Reviewer — Case List ════════ -->
+<div class="screen" id="screenReviewerList">
+  <div class="container">
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px; flex-wrap:wrap;">
+      <h2 class="section-title" style="margin-bottom:0;">Reviewer — Case List</h2>
+      <div class="filter-bar" style="margin-bottom:0;">
+        <label>Search:</label>
+        <input type="text" id="reviewerSearch" placeholder="Sub-case ID, Case Type, ID SO..." oninput="renderReviewerList()">
+      </div>
+    </div>
+
+    <!-- Table 1: New Cases -->
+    <div class="table-section">
+      <div class="section-header">
+        <h3>&#128196; New Cases — Pending Review <span class="count" id="reviewerNewCount"></span></h3>
+      </div>
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Sub-case ID</th><th>Submission Date</th><th>Due Date</th>
+              <th>Case Type</th><th>FLOW?</th><th>Exhibits</th>
+              <th>ID SO</th><th>Reviewer</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="reviewerNewTableBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="reviewerNewEmpty" style="display:none;">
+        <div class="icon">&#9989;</div>
+        <p>No new cases pending review.</p>
+      </div>
+    </div>
+
+    <!-- Table 2: Returning Cases -->
+    <div class="table-section">
+      <div class="section-header">
+        <h3>&#128257; Returning Cases — Reportee Completed Changes <span class="count" id="reviewerReturnCount"></span></h3>
+      </div>
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Sub-case ID</th><th>Submission Date</th><th>Due Date</th>
+              <th>Case Type</th><th>FLOW?</th><th>Exhibits</th>
+              <th>ID SO</th><th>Reviewer</th><th>Status</th>
+              <th>Issues</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="reviewerReturnTableBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="reviewerReturnEmpty" style="display:none;">
+        <div class="icon">&#128203;</div>
+        <p>No returning cases at this time.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════ LIMS Copy Modal ════════ -->
+<div class="modal-backdrop" id="limsModal">
+  <div class="modal">
+    <h3>&#128203; Copy Issues for LIMS</h3>
+    <p class="modal-sub">The text below contains all issues marked "Report in LIMS". Copy and paste it into your LIMS system.</p>
+    <textarea id="limsText" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeLIMSModal()">Close</button>
+      <button class="btn btn-primary" onclick="copyLIMSText()">&#128203; Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ Screen: Reviewer — Case Detail / Issue Entry ════════ -->
+<div class="screen" id="screenReviewerDetail">
+  <div class="container">
+    <button class="btn btn-outline btn-sm" onclick="showScreen('screenReviewerList')" style="margin-bottom:16px;">&#8592; Back to Case List</button>
+
+    <div class="card">
+      <h2 class="section-title">Case Details</h2>
+      <div class="case-header" id="reviewerCaseHeader"></div>
+    </div>
+
+    <!-- Existing issues -->
+    <div class="card">
+      <h2 class="section-title">Issues <span class="count" id="issueCount"></span></h2>
+      <div id="reviewerIssueList"></div>
+      <div class="empty-state" id="noIssuesYet" style="display:none;">
+        <div class="icon">&#9989;</div>
+        <p>No issues logged yet for this case.</p>
+      </div>
+    </div>
+
+    <!-- Add issue form -->
+    <div class="card">
+      <h2 class="section-title">Add New Issue</h2>
+      <div class="form-group">
+        <label>Issue Description</label>
+        <textarea id="issueDesc" placeholder="Describe the issue found..."></textarea>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <div class="form-group" style="flex:1; min-width:180px;">
+          <label>Issue Type</label>
+          <select id="issueType">
+            <option value="">— Select —</option>
+            <option>Documentation Error</option>
+            <option>Calculation Error</option>
+            <option>Missing Information</option>
+            <option>Procedural Error</option>
+            <option>Formatting Issue</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1; min-width:180px;">
+          <label>Issue Tier</label>
+          <select id="issueTier">
+            <option value="">— Select —</option>
+            <option value="T1">T1 — Minor (least severe)</option>
+            <option value="T2">T2 — Major</option>
+            <option value="T3">T3 — Critical (most severe)</option>
+          </select>
+        </div>
+      </div>
+      <div class="lims-row">
+        <input type="checkbox" id="issueReportLIMS" checked>
+        <label for="issueReportLIMS" style="font-weight:600; cursor:pointer;">Report in LIMS</label>
+        <span style="color:#605e5c;">(uncheck to exclude this issue from LIMS copy)</span>
+      </div>
+      <div style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="addIssue()">+ Add Issue</button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+      <div class="action-bar" style="border:none; margin:0; padding:0;">
+        <button class="btn btn-outline" onclick="openLIMSModal()">&#128203; Copy Issues for LIMS</button>
+        <button class="btn btn-warning" onclick="markReviewed()">Mark as Reviewed</button>
+        <button class="btn btn-success" onclick="markCompleted()">Case Completed</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ Screen: Reportee — Case List ════════ -->
+<div class="screen" id="screenReporteeList">
+  <div class="container">
+    <h2 class="section-title">My Cases — Reviewed <span class="count" id="reporteeCaseCount"></span></h2>
+
+    <div class="filter-bar">
+      <label>Search:</label>
+      <input type="text" id="reporteeSearch" placeholder="Sub-case ID..." oninput="renderReporteeList()">
+      <label>Status:</label>
+      <select id="reporteeStatusFilter" onchange="renderReporteeList()">
+        <option value="Reviewed">Reviewed (Action Required)</option>
+        <option value="all">All My Cases</option>
+      </select>
+    </div>
+
+    <div class="card" style="padding:0; overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Sub-case ID</th>
+            <th>Submission Date</th>
+            <th>Due Date</th>
+            <th>Case Type</th>
+            <th>FLOW?</th>
+            <th>Exhibits</th>
+            <th>ID SO</th>
+            <th>Reviewer</th>
+            <th>Status</th>
+            <th>Issues</th>
+          </tr>
+        </thead>
+        <tbody id="reporteeTableBody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="reporteeEmpty" style="display:none;">
+      <div class="icon">&#128203;</div>
+      <p>No cases match the current filter.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ Screen: Reportee — Issue Response ════════ -->
+<div class="screen" id="screenReporteeDetail">
+  <div class="container">
+    <button class="btn btn-outline btn-sm" onclick="showScreen('screenReporteeList')" style="margin-bottom:16px;">&#8592; Back to Case List</button>
+
+    <div class="card">
+      <h2 class="section-title">Case Details</h2>
+      <div class="case-header" id="reporteeCaseHeader"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Issues to Address <span class="count" id="reporteeIssueCount"></span></h2>
+      <p class="section-subtitle">Reply to each issue and mark as completed. All issues must be addressed before submitting.</p>
+      <div id="reporteeIssueList"></div>
+    </div>
+
+    <div class="card">
+      <div class="action-bar" style="border:none; margin:0; padding:0;">
+        <button class="btn btn-primary" id="btnSubmitBack" onclick="submitBackForReview()" disabled>Submit &amp; Return to Ready for Review</button>
+        <span id="pendingMsg" style="font-size:13px; color:#a4262c; align-self:center;"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA (mock — simulates Microsoft Lists)
+// ════════════════════════════════════════════════════════
+
+const DEFAULT_CASES = [
+  { id: 1, subcaseId: "DNA-2026-0412", submissionDate: "2026-03-15", dueDate: "2026-04-12", caseType: "DNA Analysis", flowCase: "Yes", exhibits: 5, idSO: "SO-Ahmad", reviewer: "Dr. Lee", status: "Ready for Review", ccepgSO: "SO-Rahim", remarks: "" },
+  { id: 2, subcaseId: "DNA-2026-0398", submissionDate: "2026-03-10", dueDate: "2026-04-08", caseType: "DNA Analysis", flowCase: "No", exhibits: 3, idSO: "SO-Sarah", reviewer: "Dr. Lee", status: "Ready for Review", ccepgSO: "SO-Farid", remarks: "" },
+  { id: 3, subcaseId: "TOX-2026-0156", submissionDate: "2026-03-18", dueDate: "2026-04-15", caseType: "Toxicology", flowCase: "No", exhibits: 8, idSO: "SO-Wei", reviewer: "Dr. Tan", status: "Reviewed", ccepgSO: "SO-Kumar", remarks: "" },
+  { id: 4, subcaseId: "SER-2026-0087", submissionDate: "2026-03-20", dueDate: "2026-04-18", caseType: "Serology", flowCase: "Yes", exhibits: 2, idSO: "SO-Ahmad", reviewer: "Dr. Lee", status: "In Review", ccepgSO: "SO-Rahim", remarks: "" },
+  { id: 5, subcaseId: "DNA-2026-0421", submissionDate: "2026-03-22", dueDate: "2026-04-20", caseType: "DNA Analysis", flowCase: "Yes", exhibits: 12, idSO: "SO-Sarah", reviewer: "Dr. Tan", status: "Ready for Review", ccepgSO: "SO-Kumar", remarks: "" },
+  { id: 6, subcaseId: "TOX-2026-0162", submissionDate: "2026-03-25", dueDate: "2026-04-22", caseType: "Toxicology", flowCase: "No", exhibits: 4, idSO: "SO-Wei", reviewer: "Dr. Lee", status: "Case Completed", ccepgSO: "SO-Farid", remarks: "No issues found." },
+  { id: 7, subcaseId: "SER-2026-0093", submissionDate: "2026-03-12", dueDate: "2026-04-10", caseType: "Serology", flowCase: "Yes", exhibits: 6, idSO: "SO-Ahmad", reviewer: "Dr. Lee", status: "Ready for Review", ccepgSO: "SO-Rahim", remarks: "" }
+];
+
+const DEFAULT_ISSUES = [
+  { id: 1, caseId: 3, description: "Table 3 calculations do not match the raw data values. Row 5 shows 0.35 ng/uL but the instrument output shows 0.53 ng/uL.", type: "Calculation Error", tier: "T3", soReply: "", completed: false, round: 1, reportInLIMS: true },
+  { id: 2, caseId: 3, description: "Missing chain of custody signature for exhibit E3 on page 2.", type: "Missing Information", tier: "T2", soReply: "", completed: false, round: 1, reportInLIMS: true },
+  { id: 3, caseId: 3, description: "Header on page 5 still references the old case number format.", type: "Formatting Issue", tier: "T1", soReply: "", completed: false, round: 1, reportInLIMS: false },
+  { id: 4, caseId: 7, description: "Exhibit B2 swab description in the report does not match the physical label — report says 'inner thigh' but label reads 'outer thigh'.", type: "Documentation Error", tier: "T3", soReply: "Corrected on page 4, updated exhibit description to match physical label.", completed: true, round: 1, reportInLIMS: true },
+  { id: 5, caseId: 7, description: "Page numbering resets to 1 at Appendix B instead of continuing from the main body.", type: "Formatting Issue", tier: "T1", soReply: "Page numbering corrected, Appendix B now continues from page 18.", completed: true, round: 1, reportInLIMS: true }
+];
+
+// ── Persistence ──────────────────────────────────────
+function loadData() {
+  const c = localStorage.getItem('caseTracker_cases');
+  const i = localStorage.getItem('caseTracker_issues');
+  return {
+    cases: c ? JSON.parse(c) : JSON.parse(JSON.stringify(DEFAULT_CASES)),
+    issues: i ? JSON.parse(i) : JSON.parse(JSON.stringify(DEFAULT_ISSUES))
+  };
+}
+function saveData() {
+  localStorage.setItem('caseTracker_cases', JSON.stringify(data.cases));
+  localStorage.setItem('caseTracker_issues', JSON.stringify(data.issues));
+}
+let data = loadData();
+let currentRole = null;
+let selectedCaseId = null;
+let nextIssueId = data.issues.length ? Math.max(...data.issues.map(i => i.id)) + 1 : 1;
+
+// ════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  updateBreadcrumb(id);
+}
+
+function updateBreadcrumb(screenId) {
+  const map = {
+    screenHome: '',
+    screenReviewerList: 'Reviewer > Case List',
+    screenReviewerDetail: 'Reviewer > Case Detail',
+    screenReporteeList: 'Reportee > My Cases',
+    screenReporteeDetail: 'Reportee > Issue Response'
+  };
+  document.getElementById('breadcrumb').textContent = map[screenId] || '';
+}
+
+function selectRole(role) {
+  currentRole = role;
+  document.getElementById('roleDisplay').textContent = role === 'reviewer' ? 'Role: Reviewer' : 'Role: Reportee';
+  document.getElementById('btnLogout').style.display = '';
+  if (role === 'reviewer') {
+    showScreen('screenReviewerList');
+    renderReviewerList();
+  } else {
+    showScreen('screenReporteeList');
+    renderReporteeList();
+  }
+}
+
+function goHome() {
+  currentRole = null;
+  selectedCaseId = null;
+  document.getElementById('roleDisplay').textContent = '';
+  document.getElementById('btnLogout').style.display = 'none';
+  showScreen('screenHome');
+}
+
+// ════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+// ════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════
+
+function badgeClass(status) {
+  const map = {
+    'Ready for Review': 'badge-ready',
+    'In Review': 'badge-inreview',
+    'Reviewed': 'badge-reviewed',
+    'Case Completed': 'badge-completed'
+  };
+  return map[status] || '';
+}
+
+function renderCaseHeader(containerId, c) {
+  const fields = [
+    ['Sub-case ID', c.subcaseId],
+    ['Status', `<span class="badge ${badgeClass(c.status)}">${c.status}</span>`],
+    ['Submission Date', c.submissionDate],
+    ['Due Date', c.dueDate],
+    ['Case Type', c.caseType],
+    ['FLOW Case', c.flowCase],
+    ['No. of Exhibits', c.exhibits],
+    ['ID SO', c.idSO],
+    ['Reviewer', c.reviewer]
+  ];
+  document.getElementById(containerId).innerHTML = fields.map(([label, val]) =>
+    `<div class="field"><div class="field-label">${label}</div><div class="field-value">${val}</div></div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// REVIEWER — CASE LIST
+// ════════════════════════════════════════════════════════
+
+function caseHasIssues(caseId) {
+  return data.issues.some(i => i.caseId === caseId);
+}
+
+function renderReviewerList() {
+  const search = document.getElementById('reviewerSearch').value.toLowerCase();
+
+  const matchesSearch = c =>
+    !search ||
+    c.subcaseId.toLowerCase().includes(search) ||
+    c.caseType.toLowerCase().includes(search) ||
+    c.idSO.toLowerCase().includes(search);
+
+  // Table 1: new cases (Ready for Review with NO prior issues) + In Review cases
+  const newCases = data.cases.filter(c =>
+    ((c.status === 'Ready for Review' && !caseHasIssues(c.id)) || c.status === 'In Review') &&
+    matchesSearch(c)
+  );
+
+  // Table 2: returning cases (Ready for Review WITH existing issues = reportee sent back)
+  const returningCases = data.cases.filter(c =>
+    c.status === 'Ready for Review' && caseHasIssues(c.id) && matchesSearch(c)
+  );
+
+  const rowHTML = (c, showIssueCount) => {
+    const issueCount = data.issues.filter(i => i.caseId === c.id).length;
+    return `
+    <tr class="clickable" onclick="openReviewerCase(${c.id})">
+      <td><strong>${c.subcaseId}</strong></td>
+      <td>${c.submissionDate}</td>
+      <td>${c.dueDate}</td>
+      <td>${c.caseType}</td>
+      <td>${c.flowCase}</td>
+      <td>${c.exhibits}</td>
+      <td>${c.idSO}</td>
+      <td>${c.reviewer}</td>
+      <td><span class="badge ${badgeClass(c.status)}">${c.status}</span></td>
+      ${showIssueCount ? `<td><span class="badge badge-returning">${issueCount} issue${issueCount !== 1 ? 's' : ''}</span></td>` : ''}
+      <td>
+        ${c.status === 'Ready for Review' ? `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); startReview(${c.id})">Start Review</button>` : ''}
+      </td>
+    </tr>`;
+  };
+
+  document.getElementById('reviewerNewCount').textContent = `(${newCases.length})`;
+  document.getElementById('reviewerNewEmpty').style.display = newCases.length ? 'none' : 'block';
+  document.getElementById('reviewerNewTableBody').innerHTML = newCases.map(c => rowHTML(c, false)).join('');
+
+  document.getElementById('reviewerReturnCount').textContent = `(${returningCases.length})`;
+  document.getElementById('reviewerReturnEmpty').style.display = returningCases.length ? 'none' : 'block';
+  document.getElementById('reviewerReturnTableBody').innerHTML = returningCases.map(c => rowHTML(c, true)).join('');
+}
+
+function startReview(caseId) {
+  const c = data.cases.find(x => x.id === caseId);
+  c.status = 'In Review';
+  saveData();
+  renderReviewerList();
+  showToast(`${c.subcaseId} set to "In Review"`);
+  openReviewerCase(caseId);
+}
+
+// ════════════════════════════════════════════════════════
+// REVIEWER — CASE DETAIL
+// ════════════════════════════════════════════════════════
+
+function openReviewerCase(caseId) {
+  selectedCaseId = caseId;
+  const c = data.cases.find(x => x.id === caseId);
+
+  // Auto-set to In Review if still Ready
+  if (c.status === 'Ready for Review') {
+    c.status = 'In Review';
+    saveData();
+  }
+
+  renderCaseHeader('reviewerCaseHeader', c);
+  renderReviewerIssues();
+  showScreen('screenReviewerDetail');
+}
+
+function renderReviewerIssues() {
+  const issues = data.issues.filter(i => i.caseId === selectedCaseId);
+  document.getElementById('issueCount').textContent = `(${issues.length})`;
+  document.getElementById('noIssuesYet').style.display = issues.length ? 'none' : 'block';
+
+  document.getElementById('reviewerIssueList').innerHTML = issues.map(i => `
+    <div class="issue-item ${i.completed ? 'completed-issue' : ''}">
+      <div class="issue-meta">
+        <span class="badge tier-${i.tier}">${i.tier}</span>
+        <span class="badge" style="background:#edebe9;color:#323130;">${i.type}</span>
+        <span style="font-size:12px;color:#605e5c;">Round ${i.round}</span>
+        ${i.completed ? '<span class="badge badge-completed">Completed by SO</span>' : '<span class="badge badge-reviewed">Open</span>'}
+      </div>
+      <div class="issue-desc">${escapeHtml(i.description)}</div>
+      ${i.soReply ? `<div style="margin-top:8px;padding:8px 12px;background:#e8f4fd;border-radius:4px;font-size:13px;"><strong>SO Reply:</strong> ${escapeHtml(i.soReply)}</div>` : ''}
+      <div class="lims-row" style="margin-top:8px;">
+        <input type="checkbox" id="lims_${i.id}" ${i.reportInLIMS ? 'checked' : ''} onchange="toggleLIMS(${i.id}, this.checked)">
+        <label for="lims_${i.id}" style="cursor:pointer; font-size:13px;">Report in LIMS</label>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addIssue() {
+  const desc = document.getElementById('issueDesc').value.trim();
+  const type = document.getElementById('issueType').value;
+  const tier = document.getElementById('issueTier').value;
+
+  if (!desc) { showToast('Please enter an issue description.'); return; }
+  if (!type) { showToast('Please select an issue type.'); return; }
+  if (!tier) { showToast('Please select an issue tier.'); return; }
+
+  // Determine current round
+  const existing = data.issues.filter(i => i.caseId === selectedCaseId);
+  const maxRound = existing.length ? Math.max(...existing.map(i => i.round)) : 0;
+  const c = data.cases.find(x => x.id === selectedCaseId);
+  const round = c.status === 'In Review' && existing.some(i => i.round === maxRound && i.completed) ? maxRound + 1 : (maxRound || 1);
+
+  const reportLIMS = document.getElementById('issueReportLIMS').checked;
+  data.issues.push({
+    id: nextIssueId++,
+    caseId: selectedCaseId,
+    description: desc,
+    type: type,
+    tier: tier,
+    soReply: '',
+    completed: false,
+    round: round,
+    reportInLIMS: reportLIMS
+  });
+  document.getElementById('issueReportLIMS').checked = true; // reset to default Yes
+  saveData();
+
+  document.getElementById('issueDesc').value = '';
+  document.getElementById('issueType').value = '';
+  document.getElementById('issueTier').value = '';
+  renderReviewerIssues();
+  showToast('Issue added successfully.');
+}
+
+function toggleLIMS(issueId, checked) {
+  const issue = data.issues.find(i => i.id === issueId);
+  issue.reportInLIMS = checked;
+  saveData();
+}
+
+function openLIMSModal() {
+  const issues = data.issues.filter(i => i.caseId === selectedCaseId && i.reportInLIMS);
+  const c = data.cases.find(x => x.id === selectedCaseId);
+  const lines = issues.map(i => `[${i.type}] ${i.description}`).join('\n');
+  const text = issues.length
+    ? `Case: ${c.subcaseId}\nReview Issues for LIMS:\n\n${lines}`
+    : '(No issues marked for LIMS reporting)';
+  document.getElementById('limsText').value = text;
+  document.getElementById('limsModal').classList.add('open');
+}
+
+function closeLIMSModal() {
+  document.getElementById('limsModal').classList.remove('open');
+}
+
+function copyLIMSText() {
+  const text = document.getElementById('limsText').value;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Copied to clipboard!');
+    closeLIMSModal();
+  }).catch(() => {
+    // Fallback for browsers that block clipboard
+    document.getElementById('limsText').select();
+    document.execCommand('copy');
+    showToast('Copied to clipboard!');
+    closeLIMSModal();
+  });
+}
+
+function markReviewed() {
+  const issues = data.issues.filter(i => i.caseId === selectedCaseId);
+  if (issues.length === 0) {
+    showToast('Add at least one issue before marking as Reviewed.');
+    return;
+  }
+  const c = data.cases.find(x => x.id === selectedCaseId);
+  c.status = 'Reviewed';
+  saveData();
+  showToast(`${c.subcaseId} marked as "Reviewed". Reportee will be notified via Teams.`);
+  renderReviewerList();
+  showScreen('screenReviewerList');
+}
+
+function markCompleted() {
+  const c = data.cases.find(x => x.id === selectedCaseId);
+  c.status = 'Case Completed';
+  saveData();
+  showToast(`${c.subcaseId} marked as "Case Completed".`);
+  renderReviewerList();
+  showScreen('screenReviewerList');
+}
+
+// ════════════════════════════════════════════════════════
+// REPORTEE — CASE LIST
+// ════════════════════════════════════════════════════════
+
+function renderReporteeList() {
+  const search = document.getElementById('reporteeSearch').value.toLowerCase();
+  const statusFilter = document.getElementById('reporteeStatusFilter').value;
+
+  let filtered = data.cases.filter(c => {
+    if (statusFilter === 'all') return true;
+    return c.status === statusFilter;
+  });
+  if (search) {
+    filtered = filtered.filter(c => c.subcaseId.toLowerCase().includes(search));
+  }
+
+  const tbody = document.getElementById('reporteeTableBody');
+  document.getElementById('reporteeCaseCount').textContent = `(${filtered.length})`;
+  document.getElementById('reporteeEmpty').style.display = filtered.length ? 'none' : 'block';
+
+  tbody.innerHTML = filtered.map(c => {
+    const issueCount = data.issues.filter(i => i.caseId === c.id && !i.completed).length;
+    return `
+    <tr class="clickable" onclick="openReporteeCase(${c.id})">
+      <td><strong>${c.subcaseId}</strong></td>
+      <td>${c.submissionDate}</td>
+      <td>${c.dueDate}</td>
+      <td>${c.caseType}</td>
+      <td>${c.flowCase}</td>
+      <td>${c.exhibits}</td>
+      <td>${c.idSO}</td>
+      <td>${c.reviewer}</td>
+      <td><span class="badge ${badgeClass(c.status)}">${c.status}</span></td>
+      <td>${issueCount > 0 ? `<span style="color:#a4262c;font-weight:600;">${issueCount} open</span>` : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// REPORTEE — ISSUE RESPONSE
+// ════════════════════════════════════════════════════════
+
+function openReporteeCase(caseId) {
+  selectedCaseId = caseId;
+  const c = data.cases.find(x => x.id === caseId);
+  renderCaseHeader('reporteeCaseHeader', c);
+  renderReporteeIssues();
+  showScreen('screenReporteeDetail');
+}
+
+function renderReporteeIssues() {
+  const issues = data.issues.filter(i => i.caseId === selectedCaseId);
+  const openCount = issues.filter(i => !i.completed).length;
+  document.getElementById('reporteeIssueCount').textContent = `(${issues.length} total, ${openCount} open)`;
+
+  document.getElementById('reporteeIssueList').innerHTML = issues.map(i => `
+    <div class="issue-item ${i.completed ? 'completed-issue' : ''}">
+      <div class="issue-checkbox">
+        <input type="checkbox" ${i.completed ? 'checked' : ''} onchange="toggleIssueComplete(${i.id}, this.checked)">
+        <div style="flex:1;">
+          <div class="issue-meta">
+            <span class="badge tier-${i.tier}">${i.tier}</span>
+            <span class="badge" style="background:#edebe9;color:#323130;">${i.type}</span>
+            <span style="font-size:12px;color:#605e5c;">Round ${i.round}</span>
+          </div>
+          <div class="issue-desc">${escapeHtml(i.description)}</div>
+          <div class="form-group" style="margin-top:8px; margin-bottom:0;">
+            <label>SO Reply</label>
+            <textarea rows="2" placeholder="Enter your response..." onchange="updateReply(${i.id}, this.value)">${escapeHtml(i.soReply)}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  updateSubmitButton();
+}
+
+function toggleIssueComplete(issueId, checked) {
+  const issue = data.issues.find(i => i.id === issueId);
+  issue.completed = checked;
+  saveData();
+  renderReporteeIssues();
+}
+
+function updateReply(issueId, val) {
+  const issue = data.issues.find(i => i.id === issueId);
+  issue.soReply = val;
+  saveData();
+  updateSubmitButton();
+}
+
+function updateSubmitButton() {
+  const issues = data.issues.filter(i => i.caseId === selectedCaseId);
+  const allDone = issues.length > 0 && issues.every(i => i.completed);
+  document.getElementById('btnSubmitBack').disabled = !allDone;
+  document.getElementById('pendingMsg').textContent = allDone ? '' : 'All issues must be marked as completed before submitting.';
+}
+
+function submitBackForReview() {
+  const c = data.cases.find(x => x.id === selectedCaseId);
+  c.status = 'Ready for Review';
+  saveData();
+  showToast(`${c.subcaseId} returned to "Ready for Review". Reviewer will be notified via Teams.`);
+  renderReporteeList();
+  showScreen('screenReporteeList');
+}
+
+// ════════════════════════════════════════════════════════
+// UTIL
+// ════════════════════════════════════════════════════════
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function resetData() {
+  if (confirm('Reset all data to defaults? This will clear any changes you made.')) {
+    localStorage.removeItem('caseTracker_cases');
+    localStorage.removeItem('caseTracker_issues');
+    data = loadData();
+    nextIssueId = data.issues.length ? Math.max(...data.issues.map(i => i.id)) + 1 : 1;
+    goHome();
+    showToast('Data reset to defaults.');
+  }
+}
+</script>
+</body>
+</html>
