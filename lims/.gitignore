@@ -1,0 +1,5 @@
+var/
+backend/.venv/
+backend/var/
+frontend/node_modules/
+frontend/dist/

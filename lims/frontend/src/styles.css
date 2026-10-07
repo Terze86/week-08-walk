@@ -1,0 +1,59 @@
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --text: #1c2430;
+  --muted: #5d6b7a;
+  --border: #d9dee5;
+  --accent: #1f5fae;
+  --ok: #1d7a46;
+  --bad: #b3261e;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #11151a;
+    --panel: #1a2027;
+    --text: #e6eaef;
+    --muted: #9aa7b4;
+    --border: #2c343e;
+    --accent: #6ea8ff;
+    --ok: #5cc98a;
+    --bad: #ff8a80;
+  }
+}
+body { margin: 0; background: var(--bg); }
+.topbar {
+  display: flex; gap: 24px; align-items: center; padding: 10px 16px;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+}
+.topbar nav, .subnav { display: flex; gap: 12px; flex-wrap: wrap; }
+.topbar a, .subnav a { color: var(--muted); text-decoration: none; }
+.topbar a.active, .subnav a.active { color: var(--accent); font-weight: 600; }
+.who { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.page { padding: 16px; max-width: 1200px; margin: 0 auto; }
+.subnav { margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; background: var(--panel); margin-top: 12px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 14px; }
+code { font-size: 12px; word-break: break-all; }
+input, select, button { font: inherit; padding: 4px 8px; }
+button { cursor: pointer; }
+.inline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pill { padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid currentColor; }
+.pill.active { color: var(--ok); }
+.pill.disabled { color: var(--bad); }
+.muted { color: var(--muted); }
+.error { color: var(--bad); }
+.signin {
+  max-width: 320px; margin: 10vh auto; display: grid; gap: 12px; padding: 24px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+}
+.signin label, .dialog label { display: grid; gap: 4px; }
+.dialog {
+  position: fixed; inset: 10vh 16px auto; max-width: 480px; margin: 0 auto; padding: 16px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  display: grid; gap: 12px; box-shadow: 0 8px 32px rgb(0 0 0 / 0.2);
+}
+.dialog fieldset { display: grid; gap: 4px; }
+.dialog fieldset label { display: flex; gap: 6px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }

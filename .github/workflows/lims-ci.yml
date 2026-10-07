@@ -1,0 +1,58 @@
+name: LIMS CI
+
+on:
+  push:
+    paths: ["lims/**", ".github/workflows/lims-ci.yml"]
+  pull_request:
+    paths: ["lims/**", ".github/workflows/lims-ci.yml"]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lims/backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: lims
+          POSTGRES_PASSWORD: lims
+          POSTGRES_DB: lims_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lims" --health-interval 5s --health-retries 10
+    env:
+      LIMS_DATABASE_URL: postgresql+psycopg://lims:lims@localhost:5432/lims_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy app
+      - run: python ../tools/gen_urs.py --check
+      - run: mkdir -p ../var && pytest -q --urs-report ../var/traceability.json
+      - run: python ../tools/traceability.py ../var/traceability.json > ../var/traceability.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: traceability
+          path: lims/var/traceability.*
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lims/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: lims/frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
