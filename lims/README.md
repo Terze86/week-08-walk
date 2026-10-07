@@ -6,6 +6,32 @@ A laboratory information management system built around the laboratory's own cas
 - **Done:** the cross-cutting core, the staff/admin console, and sections 2–3: case registration, exhibit checks and receipt with the submitter's signature, assignments, and chain of custody (store, retrieve, batch moves with scan checks, receiver-accepted handovers, authorised corrections).
 - **Next:** section 4 onward (screening and sampling).
 
+## Open it in your browser (GitHub Codespaces)
+
+You need only a browser and your GitHub account; nothing is installed on your computer.
+
+1. Go to https://github.com/Terze86/week-08-walk.
+2. Switch the branch selector (top left, usually showing `main`) to **`ccr-27a8ef5e-bu03qk`**.
+3. Click the green **Code** button → **Codespaces** tab → **Create codespace on ccr-27a8ef5e-bu03qk**.
+4. Wait for the first build, about 3–5 minutes. It installs everything, creates the database and loads demo data.
+5. The LIMS opens in a new browser tab. If it doesn't: open the **PORTS** tab at the bottom of the Codespace and click the globe icon next to **5173 (DNA LIMS)**.
+6. Sign in with one of the demo accounts:
+
+| Account | Role |
+|---|---|
+| `admin1` | LIMS Admin (staff, clients, locations, audit trail) |
+| `cs1`, `cs2` | Case Scientist |
+| `slo1` | Screening Lab Officer |
+| `dlo1`, `dlo2` | DNA Lab Officer |
+| `rev1` | Reviewer |
+| `codis1` | CODIS Scientist |
+
+**Things to know**
+- The address is private to your GitHub account unless you change the port's visibility.
+- Demo data only: don't enter real casework.
+- Each time you come back, the app restarts automatically. If the page doesn't load, run `bash .devcontainer/start.sh` in the Codespace terminal. Logs are in `/tmp/lims-api.log` and `/tmp/lims-web.log`.
+- Codespaces stop after 30 minutes idle and count against your free monthly hours. Delete the Codespace from https://github.com/codespaces when you no longer need it.
+
 ## Layout
 
 ```

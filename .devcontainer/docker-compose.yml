@@ -1,0 +1,27 @@
+# Codespaces / dev container: the app container plus its own PostgreSQL.
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/python:1-3.12-bookworm
+    command: sleep infinity
+    volumes:
+      - ../..:/workspaces:cached
+    environment:
+      LIMS_ENVIRONMENT: dev
+      LIMS_AUTH_MODE: dev
+      LIMS_DATABASE_URL: postgresql+psycopg://lims:lims@db:5432/lims
+      LIMS_FILE_STORE: local
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lims
+      POSTGRES_PASSWORD: lims
+      POSTGRES_DB: lims
+    volumes:
+      - lims-pgdata:/var/lib/postgresql/data
+
+volumes:
+  lims-pgdata:

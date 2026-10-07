@@ -1,0 +1,19 @@
+{
+  "name": "DNA LIMS",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "forwardPorts": [5173],
+  "portsAttributes": {
+    "5173": { "label": "DNA LIMS", "onAutoForward": "openBrowser" },
+    "8000": { "label": "LIMS API", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "codespaces": { "openFiles": ["lims/README.md"] }
+  }
+}
