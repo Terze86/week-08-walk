@@ -1,6 +1,6 @@
 """Build the requirement-to-test traceability matrix.
 
-    cd backend && pytest --urs-report ../var/traceability.json
+    cd backend && pytest --urs-report=../var/traceability.json
     python tools/traceability.py var/traceability.json > var/traceability.md
 
 Exits non-zero if any test cites an ID that is not in docs/URS.md, or if any
@@ -18,6 +18,9 @@ from gen_urs import requirement_ids  # noqa: E402
 
 def main(report_path: str) -> int:
     results = json.loads(Path(report_path).read_text())
+    if not results:
+        print("The test report contains no requirement-tagged results", file=sys.stderr)
+        return 1
     known = requirement_ids()
     by_req: dict[str, list[dict]] = defaultdict(list)
     unknown: set[str] = set()

@@ -34,7 +34,7 @@ jobs:
       - run: ruff format --check .
       - run: mypy app
       - run: python ../tools/gen_urs.py --check
-      - run: mkdir -p ../var && pytest -q --urs-report ../var/traceability.json
+      - run: mkdir -p ../var && pytest -q --urs-report=../var/traceability.json
       - run: python ../tools/traceability.py ../var/traceability.json > ../var/traceability.md
       - uses: actions/upload-artifact@v4
         if: always()

@@ -1,7 +1,8 @@
 """Development seed data: `python -m app.seed`. Refuses to run in production.
 
-Creates one laboratory and one account per role, plus a second Case Scientist
-and DNA Lab Officer so independent readings and checks can be exercised.
+Creates one laboratory and one account per role (plus a second Case Scientist
+and DNA Lab Officer so independent readings and checks can be exercised), a
+demo client, and a few storage and bench locations.
 """
 
 from sqlalchemy import select
@@ -11,6 +12,15 @@ from app.core.config import Environment, get_settings
 from app.core.db import get_sessionmaker
 from app.modules.identity import service
 from app.modules.identity.models import Laboratory, Role, User
+from app.modules.reference.models import Client, Location, LocationKind
+
+DEV_CLIENTS = [("SPF-A", "Police Division A"), ("SPF-B", "Police Division B")]
+DEV_LOCATIONS = [
+    ("STORE-A", "Exhibit store A", LocationKind.STORAGE),
+    ("STORE-B", "Exhibit store B", LocationKind.STORAGE),
+    ("BENCH-1", "Screening bench 1", LocationKind.BENCH),
+    ("BENCH-2", "Screening bench 2", LocationKind.BENCH),
+]
 
 DEV_USERS: list[tuple[str, str, list[Role]]] = [
     ("admin1", "Alex Admin", [Role.LIMS_ADMIN]),
@@ -44,6 +54,14 @@ def main() -> None:
                 roles=roles,
                 laboratory_ids=[lab.id],
             )
+        for code, name in DEV_CLIENTS:
+            if not session.execute(select(Client).filter_by(code=code)).scalar_one_or_none():
+                session.add(Client(code=code, name=name, active=True))
+        for code, name, kind in DEV_LOCATIONS:
+            if not session.execute(select(Location).filter_by(code=code)).scalar_one_or_none():
+                session.add(
+                    Location(code=code, name=name, kind=kind, laboratory_id=lab.id, active=True)
+                )
     print("Seeded development laboratory and users:", ", ".join(u for u, _, _ in DEV_USERS))
 
 

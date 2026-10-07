@@ -9,7 +9,12 @@ from app.core.audit import request_id_var
 from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.modules.admin.router import router as admin_router
+from app.modules.cases.router import router as cases_router
+from app.modules.custody.router import router as custody_router
 from app.modules.identity.router import router as identity_router
+from app.modules.receipt.router import router as receipt_router
+from app.modules.reference.router import router as reference_router
+from app.modules.work.router import router as work_router
 
 
 def create_app() -> FastAPI:
@@ -43,6 +48,11 @@ def create_app() -> FastAPI:
     api_prefix = "/api"
     app.include_router(identity_router, prefix=api_prefix)
     app.include_router(admin_router, prefix=api_prefix)
+    app.include_router(reference_router, prefix=api_prefix)
+    app.include_router(cases_router, prefix=api_prefix)
+    app.include_router(receipt_router, prefix=api_prefix)
+    app.include_router(custody_router, prefix=api_prefix)
+    app.include_router(work_router, prefix=api_prefix)
     return app
 
 

@@ -2,7 +2,9 @@
 
 A laboratory information management system built around the laboratory's own casework process. That process is described in [`docs/workflow/LIMS_WORKFLOW_STEPS.md`](docs/workflow/LIMS_WORKFLOW_STEPS.md) and numbered as requirements in [`docs/URS.md`](docs/URS.md).
 
-**Status: Phase 0 (foundations).** The cross-cutting core and the staff/admin console are in place. Casework modules (case registration through disposition) arrive in Phase 1.
+**Status: Phase 1 in progress.**
+- **Done:** the cross-cutting core, the staff/admin console, and sections 2–3: case registration, exhibit checks and receipt with the submitter's signature, assignments, and chain of custody (store, retrieve, batch moves with scan checks, receiver-accepted handovers, authorised corrections).
+- **Next:** section 4 onward (screening and sampling).
 
 ## Layout
 
@@ -10,7 +12,8 @@ A laboratory information management system built around the laboratory's own cas
 lims/
   backend/            FastAPI + SQLAlchemy + Alembic (Python 3.12+)
     app/core/         cross-cutting core used by every workflow module
-    app/modules/      domain modules (identity, admin; casework modules in Phase 1)
+    app/modules/      domain modules: identity, admin, reference (clients,
+                      locations), items, cases, receipt, custody, work (queues)
     alembic/          migrations (append-only triggers installed here)
     tests/            pytest suite, tagged with URS requirement IDs
   frontend/           React + TypeScript (Vite) workspaces per role
@@ -38,6 +41,28 @@ lims/
 
 Domain modules (Phase 1+) use these pieces rather than reimplementing them.
 
+## Casework so far (sections 2–3)
+
+| Step | Where |
+|---|---|
+| Register a case (paper or electronic) and its laboratory subcase | `modules/cases` · Cases page |
+| Record exhibits; each gets an identifier and barcode | `modules/cases`, `modules/items` |
+| Check description, marking and seal; accept, or reject with a reason | exhibit state machine in `cases/service.py` |
+| Receipt for selected accepted exhibits, with rejected ones listed separately; capture the submitter's signature; retain the signed record | `modules/receipt` · Receipt page (printable) |
+| Refusal, failed signature or other exception, kept for follow-up | receipt `exception` state · My work |
+| Assign a Case Scientist; assign or claim an exhibit examination (separate from custody) | access grants · Case page |
+| Store, retrieve and batch-move items; every item scanned again before completing | `modules/custody` · Custody page |
+| Person-to-person handover accepted only by the designated receiver | `custody.accept_handover` · My work |
+| Custody correction requested, then authorised; the original entry is kept | `custody.request_correction` / `decide_correction` |
+
+### Decisions to confirm with the laboratory
+These are marked `CONFIRM` in `backend/app/modules/cases/policy.py`:
+- **Reception roles:** Case Scientists and Screening Lab Officers register cases, check exhibits and complete receipts.
+- **Assigning Case Scientists:** done by Case Scientists or Reviewers.
+- **Authorising custody corrections:** done by Case Scientists or Reviewers. An authoriser may request and authorise in one step.
+- **Visibility:** casework staff see all cases in their own laboratories. "My work" lists only what is assigned to them. CODIS Scientists and LIMS Admins see no casework.
+- **Placeholder formats:** identifiers such as `C2026-000001`, `EX2026-0000001` and `R2026-000001`.
+
 ## Running locally
 
 Requirements: Python 3.12+, Node 22, PostgreSQL 16.
@@ -52,7 +77,8 @@ cd backend
 python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 export LIMS_DATABASE_URL=postgresql+psycopg://lims:lims@localhost:5432/lims
 .venv/bin/alembic upgrade head
-.venv/bin/python -m app.seed           # dev accounts: admin1 cs1 cs2 slo1 dlo1 dlo2 rev1 codis1
+.venv/bin/python -m app.seed           # dev accounts admin1 cs1 cs2 slo1 dlo1 dlo2 rev1 codis1,
+                                       # demo clients and locations
 .venv/bin/uvicorn app.main:app --reload
 .venv/bin/python -m app.worker         # background jobs (separate terminal)
 
@@ -67,7 +93,7 @@ Or, with Docker: `docker compose up --build`, then open http://localhost:8080.
 ```bash
 cd backend
 ruff check . && ruff format --check . && mypy app
-pytest -q --urs-report ../var/traceability.json     # uses lims_test (rebuilt each run)
+pytest -q --urs-report=../var/traceability.json     # uses lims_test (rebuilt each run)
 python ../tools/traceability.py ../var/traceability.json > ../var/traceability.md
 python ../tools/gen_urs.py --check                  # URS.md matches the workflow doc
 cd ../frontend && npm run build

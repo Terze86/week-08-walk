@@ -21,7 +21,7 @@ from app.core.db import get_db, get_engine  # noqa: E402
 from app.core.files import LocalFileStore  # noqa: E402
 from app.main import create_app  # noqa: E402
 from app.modules.identity import service as identity  # noqa: E402
-from app.modules.identity.models import Role, User  # noqa: E402
+from app.modules.identity.models import Laboratory, Role, User  # noqa: E402
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
@@ -94,10 +94,18 @@ MakeUser = Callable[..., User]
 
 
 @pytest.fixture
-def make_user(db: Session) -> MakeUser:
+def lab(db: Session) -> Laboratory:
+    laboratory = Laboratory(code="DNA", name="Forensic DNA Laboratory")
+    db.add(laboratory)
+    db.flush()
+    return laboratory
+
+
+@pytest.fixture
+def make_user(db: Session, lab: Laboratory) -> MakeUser:
     counter = {"n": 0}
 
-    def _make(*roles: Role, username: str | None = None) -> User:
+    def _make(*roles: Role, username: str | None = None, labs: list | None = None) -> User:
         counter["n"] += 1
         return identity.create_user(
             db,
@@ -105,6 +113,7 @@ def make_user(db: Session) -> MakeUser:
             username=username or f"user{counter['n']}",
             display_name=f"Test User {counter['n']}",
             roles=roles,
+            laboratory_ids=[lab.id] if labs is None else [x.id for x in labs],
         )
 
     return _make
@@ -146,3 +155,7 @@ def as_user(username: str, *, reauth: bool = False) -> dict[str, str]:
     if reauth:
         headers["X-Dev-Reauth"] = username
     return headers
+
+
+# Casework fixtures, available to every test module.
+from tests.casework import received, setting  # noqa: E402, F401
