@@ -35,18 +35,21 @@ for name in api web; do
   fi
 done
 sleep 1
-# Each server runs detached with its own log, so this script (and the
-# Codespaces start step) finishes instead of waiting on them.
-(cd backend && exec setsid nohup .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000) \
+# Each server runs detached in its own process group with its own log, so this
+# script (and the Codespaces start step) finishes instead of waiting on them.
+# Python's os.setsid is used because macOS has no `setsid` command.
+detach=(backend/.venv/bin/python -c 'import os, sys; os.setsid(); os.execvp(sys.argv[1], sys.argv[1:])')
+detach[0]="$PWD/${detach[0]}"
+(cd backend && exec nohup "${detach[@]}" .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000) \
   > /tmp/lims-api.log 2>&1 < /dev/null &
 echo $! > /tmp/lims-api.pid
-(cd frontend && exec setsid nohup npx vite --host 0.0.0.0 --port 5173 --strictPort) \
+(cd frontend && exec nohup "${detach[@]}" npx vite --host 0.0.0.0 --port 5173 --strictPort) \
   > /tmp/lims-web.log 2>&1 < /dev/null &
 echo $! > /tmp/lims-web.pid
 
 for _ in $(seq 1 30); do
   if curl -fs http://localhost:5173 > /dev/null && curl -fs http://localhost:8000/health > /dev/null; then
-    echo "==> DNA LIMS is running: open the PORTS tab and click the globe next to 5173."
+    echo "==> DNA LIMS is running at http://localhost:5173 (in Codespaces: PORTS tab, globe next to 5173)."
     exit 0
   fi
   sleep 1

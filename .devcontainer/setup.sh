@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../lims"
 
 echo "==> Installing backend"
-python -m venv backend/.venv
+"${PYTHON:-python}" -m venv backend/.venv
 backend/.venv/bin/pip install --quiet --upgrade pip
 backend/.venv/bin/pip install --quiet -e "backend[dev]"
 

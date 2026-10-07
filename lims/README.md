@@ -32,6 +32,24 @@ You need only a browser and your GitHub account; nothing is installed on your co
 - Each time you come back, the app restarts automatically. If the page doesn't load, run `bash .devcontainer/start.sh` in the Codespace terminal. Logs are in `/tmp/lims-api.log` and `/tmp/lims-web.log`.
 - Codespaces stop after 30 minutes idle and count against your free monthly hours. Delete the Codespace from https://github.com/codespaces when you no longer need it.
 
+## Run it on your Mac
+
+You need Homebrew. If you don't have it, install it from https://brew.sh (one command in Terminal; it asks for your Mac password).
+
+```bash
+git clone https://github.com/Terze86/week-08-walk.git
+cd week-08-walk
+git checkout ccr-27a8ef5e-bu03qk
+bash lims/scripts/run-on-mac.sh      # first run installs Python, Node, PostgreSQL (~5–10 min)
+```
+
+The LIMS then opens at http://localhost:5173. Sign in with the demo accounts listed above.
+- **Stop it:** `bash lims/scripts/stop.sh`
+- **Start it again:** rerun `run-on-mac.sh`, which takes seconds after the first time.
+- **Get the latest version:** `git pull`, then rerun the script.
+
+With Claude Desktop on your Mac, you can instead ask it to do all of this ("run `lims/scripts/run-on-mac.sh` and open the LIMS"). It can then show the app in its built-in browser while you test together.
+
 ## Layout
 
 ```
